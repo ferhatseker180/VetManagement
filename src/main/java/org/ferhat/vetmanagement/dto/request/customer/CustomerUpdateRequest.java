@@ -14,5 +14,5 @@ public class CustomerUpdateRequest {
     private String mail;
     private String address;
     private String city;
-    private List<Animal> animalList;
+    private List<Long> animalIdList;
 }

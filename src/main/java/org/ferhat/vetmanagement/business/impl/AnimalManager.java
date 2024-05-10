@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AnimalManager implements IAnimalService {
     private final AnimalRepo animalRepo;
@@ -46,6 +48,11 @@ public class AnimalManager implements IAnimalService {
     }
 
     @Override
+    public List<Animal> getAll() {
+        return this.animalRepo.findAll();
+    }
+
+    @Override
     public Page<Animal> cursor(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
         return this.animalRepo.findAll(pageable);
@@ -54,5 +61,10 @@ public class AnimalManager implements IAnimalService {
     @Override
     public Customer getCustomer(Long id) {
         return this.customerRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+    }
+
+    @Override
+    public List<Animal> findAnimalsByNameIgnoreCase(String name) {
+        return this.animalRepo.findAnimalsByNameIgnoreCase(name);
     }
 }

@@ -1,40 +1,48 @@
 package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
+import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
+import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.request.customer.CustomerSaveRequest;
 import org.ferhat.vetmanagement.dto.request.customer.CustomerUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
+import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/customers")
 public class CustomerController {
     private final ICustomerService customerService;
+    private final IAnimalService animalService;
     private final IModelMapperService modelMapperService;
 
-    public CustomerController(ICustomerService customerService, IModelMapperService modelMapperService) {
+    public CustomerController(ICustomerService customerService, IModelMapperService modelMapperService, IAnimalService animalService) {
         this.customerService = customerService;
         this.modelMapperService = modelMapperService;
+        this.animalService = animalService;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<CustomerResponse> save(@Valid @RequestBody CustomerSaveRequest customerSaveRequest) {
         Customer saveCustomer = this.modelMapperService.forRequest().map(customerSaveRequest, Customer.class);
-        List<Animal> animalList = this.customerService.getAnimals(customerSaveRequest.getAnimalIdList());
-        saveCustomer.setAnimals(animalList);
+      //  List<Animal> animalList = this.customerService.getAnimals(customerSaveRequest.getAnimalId());
+       // saveCustomer.setAnimals(animalList);
         this.customerService.save(saveCustomer);
         return ResultHelper.created(this.modelMapperService.forResponse().map(saveCustomer, CustomerResponse.class));
     }
@@ -45,6 +53,42 @@ public class CustomerController {
         Customer customer = this.customerService.get(id);
         CustomerResponse customerResponse = this.modelMapperService.forResponse().map(customer, CustomerResponse.class);
         return ResultHelper.success(customerResponse);
+    }
+
+    // Customer isme göre arama
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<CustomerResponse>> findCustomersByName(@RequestParam("name") String name) {
+        String lowerName = name.toLowerCase();
+        List<Customer> customers = this.customerService.findCustomersByNameIgnoreCase(lowerName);
+
+        if (customers.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+        }
+
+        List<CustomerResponse> customerResponses = new ArrayList<>();
+
+        for (Customer customer : customers) {
+            customerResponses.add(modelMapperService.forResponse().map(customer, CustomerResponse.class));
+        }
+        return ResultHelper.success(customerResponses);
+    }
+
+    // Customer'ın tüm hayvanlarını listeleme
+    @GetMapping("/{customerId}/animals")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<AnimalResponse>> getCustomerAnimals(@PathVariable("customerId") Long customerId) {
+        List<Animal> animals = this.customerService.getCustomerAnimals(customerId);
+
+        if (animals.isEmpty()) {
+            throw new NotFoundException("Not found animal");
+        }
+
+        List<AnimalResponse> animalResponses = animals.stream()
+                .map(animal -> modelMapperService.forResponse().map(animal, AnimalResponse.class))
+                .collect(Collectors.toList());
+
+        return ResultHelper.success(animalResponses);
     }
 
     @GetMapping()

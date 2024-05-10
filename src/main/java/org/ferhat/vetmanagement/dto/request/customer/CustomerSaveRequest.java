@@ -11,5 +11,4 @@ public class CustomerSaveRequest {
     private String mail;
     private String address;
     private String city;
-    private List<Long> animalIdList;
 }

@@ -54,8 +54,19 @@ public class CustomerManager implements ICustomerService {
     }
 
     @Override
+    public List<Customer> findCustomersByNameIgnoreCase(String name) {
+        return this.customerRepo.findCustomersByNameIgnoreCase(name);
+    }
+
+    @Override
     public List<Animal> getAnimals(List<Long> idList) {
         return this.animalRepo.findAllById(idList);
+    }
+
+    @Override
+    public List<Animal> getCustomerAnimals(Long customerId) {
+        Customer customer = get(customerId);
+        return customer.getAnimalList();
     }
 
 }

@@ -2,6 +2,7 @@ package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
+import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
@@ -10,32 +11,48 @@ import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
+import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/animals")
 public class AnimalController {
     private final IAnimalService animalService;
     private final IModelMapperService modelMapperService;
+    private final ICustomerService customerService;
 
-    public AnimalController(IAnimalService animalService, IModelMapperService modelMapperService) {
+    public AnimalController(IAnimalService animalService, IModelMapperService modelMapperService, ICustomerService customerService) {
         this.animalService = animalService;
         this.modelMapperService = modelMapperService;
+        this.customerService = customerService;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AnimalResponse> save(@Valid @RequestBody AnimalSaveRequest animalSaveRequest) {
+        // Customer ID'yi al
         Long customerId = animalSaveRequest.getCustomerId();
-        Customer customer = animalService.getCustomer(customerId);
-        Animal saveAnimal = this.modelMapperService.forRequest().map(animalSaveRequest, Animal.class);
+
+        // Veritabanında bu müşteri ID'siyle ilgili müşteriyi kontrol et
+        Customer customer = customerService.get(customerId);
+        if (customer == null) {
+            // Eğer müşteri bulunamazsa uygun bir hata işle
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+        }
+        Animal saveAnimal = modelMapperService.forRequest().map(animalSaveRequest, Animal.class);
+
         saveAnimal.setCustomer(customer);
-        this.animalService.save(saveAnimal);
-        return ResultHelper.created(this.modelMapperService.forResponse().map(saveAnimal, AnimalResponse.class));
+        Animal savedAnimal = animalService.save(saveAnimal);
+        AnimalResponse animalResponse = modelMapperService.forResponse().map(savedAnimal, AnimalResponse.class);
+        return ResultHelper.created(animalResponse);
     }
 
     @GetMapping("/{id}")
@@ -44,6 +61,24 @@ public class AnimalController {
         Animal animal = this.animalService.get(id);
         AnimalResponse animalResponse = this.modelMapperService.forResponse().map(animal, AnimalResponse.class);
         return ResultHelper.success(animalResponse);
+    }
+
+    // Customer isme göre arama
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<AnimalResponse>> findAnimalsByNameIgnoreCase(@RequestParam("name") String name) {
+        List<Animal> animals = this.animalService.findAnimalsByNameIgnoreCase(name);
+
+        if (animals.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Animal not found");
+        }
+
+        List<AnimalResponse> animalResponses = new ArrayList<>();
+
+        for (Animal animal : animals) {
+            animalResponses.add(modelMapperService.forResponse().map(animal, AnimalResponse.class));
+        }
+        return ResultHelper.success(animalResponses);
     }
 
     @GetMapping()

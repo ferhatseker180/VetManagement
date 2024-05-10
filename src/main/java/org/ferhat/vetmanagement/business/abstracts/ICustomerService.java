@@ -18,5 +18,9 @@ public interface ICustomerService {
 
     Page<Customer> cursor(int page, int pageSize);
 
+    List<Customer> findCustomersByNameIgnoreCase(String name);
+
     List<Animal> getAnimals(List<Long> idList);
+
+    List<Animal> getCustomerAnimals(Long customerId);
 }

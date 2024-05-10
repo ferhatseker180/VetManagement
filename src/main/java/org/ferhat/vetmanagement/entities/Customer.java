@@ -34,5 +34,5 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
     @JsonIgnore
-    private List<Animal> animals;
+    private List<Animal> animalList;
 }
