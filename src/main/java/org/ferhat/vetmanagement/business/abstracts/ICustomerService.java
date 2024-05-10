@@ -4,6 +4,8 @@ import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface ICustomerService {
 
     Customer save(Customer customer);
@@ -15,4 +17,6 @@ public interface ICustomerService {
     Customer get(Long id);
 
     Page<Customer> cursor(int page, int pageSize);
+
+    List<Animal> getAnimals(List<Long> idList);
 }

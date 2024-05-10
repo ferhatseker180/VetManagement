@@ -10,10 +10,13 @@ import org.ferhat.vetmanagement.dto.request.customer.CustomerSaveRequest;
 import org.ferhat.vetmanagement.dto.request.customer.CustomerUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
+import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/customers")
@@ -30,6 +33,8 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<CustomerResponse> save(@Valid @RequestBody CustomerSaveRequest customerSaveRequest) {
         Customer saveCustomer = this.modelMapperService.forRequest().map(customerSaveRequest, Customer.class);
+        List<Animal> animalList = this.customerService.getAnimals(customerSaveRequest.getAnimalIdList());
+        saveCustomer.setAnimals(animalList);
         this.customerService.save(saveCustomer);
         return ResultHelper.created(this.modelMapperService.forResponse().map(saveCustomer, CustomerResponse.class));
     }
