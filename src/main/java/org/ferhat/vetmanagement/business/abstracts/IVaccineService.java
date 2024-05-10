@@ -1,7 +1,6 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
 import org.ferhat.vetmanagement.entities.Animal;
-import org.ferhat.vetmanagement.entities.Customer;
 import org.ferhat.vetmanagement.entities.Vaccine;
 import org.springframework.data.domain.Page;
 
