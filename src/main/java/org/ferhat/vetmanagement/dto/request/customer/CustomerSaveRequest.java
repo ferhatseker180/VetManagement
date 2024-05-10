@@ -1,7 +1,6 @@
 package org.ferhat.vetmanagement.dto.request.customer;
 
 import lombok.Data;
-import org.ferhat.vetmanagement.entities.Animal;
 
 import java.util.List;
 
