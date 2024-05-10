@@ -1,10 +1,10 @@
 package org.ferhat.vetmanagement.dto.request.animal;
 
-import jakarta.persistence.Column;
 import lombok.Data;
 import org.ferhat.vetmanagement.entities.Customer;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class AnimalSaveRequest {
@@ -15,5 +15,5 @@ public class AnimalSaveRequest {
     private String gender;
     private LocalDate dateOfBirth;
     private String color;
-    private Customer customer;
+    private Long customerId;
 }

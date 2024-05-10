@@ -4,7 +4,9 @@ import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.entities.Animal;
+import org.ferhat.vetmanagement.entities.Customer;
 import org.ferhat.vetmanagement.repository.AnimalRepo;
+import org.ferhat.vetmanagement.repository.CustomerRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +15,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class AnimalManager implements IAnimalService {
     private final AnimalRepo animalRepo;
+    private final CustomerRepo customerRepo;
 
-    public AnimalManager(AnimalRepo animalRepo) {
+    public AnimalManager(AnimalRepo animalRepo, CustomerRepo customerRepo) {
         this.animalRepo = animalRepo;
+        this.customerRepo = customerRepo;
     }
 
     @Override
@@ -45,5 +49,10 @@ public class AnimalManager implements IAnimalService {
     public Page<Animal> cursor(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
         return this.animalRepo.findAll(pageable);
+    }
+
+    @Override
+    public Customer getCustomer(Long id) {
+        return this.customerRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
     }
 }

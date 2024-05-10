@@ -4,17 +4,15 @@ import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
 
-public interface IAnimalService {
+public interface ICustomerService {
 
-    Animal save(Animal animal);
+    Customer save(Customer customer);
 
-    Animal update(Animal animal);
+    Customer update(Customer customer);
 
     boolean delete(Long id);
 
-    Animal get(Long id);
+    Customer get(Long id);
 
-    Page<Animal> cursor(int page, int pageSize);
-
-    Customer getCustomer(Long id);
+    Page<Customer> cursor(int page, int pageSize);
 }

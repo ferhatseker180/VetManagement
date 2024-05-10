@@ -2,6 +2,7 @@ package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
+import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
@@ -11,6 +12,8 @@ import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.entities.Animal;
+import org.ferhat.vetmanagement.entities.Customer;
+import org.ferhat.vetmanagement.repository.CustomerRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +32,10 @@ public class AnimalController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AnimalResponse> save(@Valid @RequestBody AnimalSaveRequest animalSaveRequest) {
+        Long customerId = animalSaveRequest.getCustomerId();
+        Customer customer = animalService.getCustomer(customerId);
         Animal saveAnimal = this.modelMapperService.forRequest().map(animalSaveRequest, Animal.class);
+        saveAnimal.setCustomer(customer);
         this.animalService.save(saveAnimal);
         return ResultHelper.created(this.modelMapperService.forResponse().map(saveAnimal, AnimalResponse.class));
     }

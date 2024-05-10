@@ -18,4 +18,5 @@ public class AnimalResponse {
     private String gender;
     private LocalDate dateOfBirth;
     private String color;
+    private Long customerId;
 }
