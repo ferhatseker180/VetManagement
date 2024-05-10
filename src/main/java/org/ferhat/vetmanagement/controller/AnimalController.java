@@ -37,13 +37,9 @@ public class AnimalController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AnimalResponse> save(@Valid @RequestBody AnimalSaveRequest animalSaveRequest) {
-        // Customer ID'yi al
         Long customerId = animalSaveRequest.getCustomerId();
-
-        // Veritabanında bu müşteri ID'siyle ilgili müşteriyi kontrol et
         Customer customer = customerService.get(customerId);
         if (customer == null) {
-            // Eğer müşteri bulunamazsa uygun bir hata işle
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
         }
         Animal saveAnimal = modelMapperService.forRequest().map(animalSaveRequest, Animal.class);

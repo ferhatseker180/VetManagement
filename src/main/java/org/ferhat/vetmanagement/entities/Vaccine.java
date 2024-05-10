@@ -28,7 +28,7 @@ public class Vaccine {
     private LocalDate protectionFinishDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "animal_id")
+    @JoinColumn(name = "animal_id",referencedColumnName = "id")
     private Animal animal;
 
 }

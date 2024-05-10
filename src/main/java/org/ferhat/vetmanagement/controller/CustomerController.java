@@ -41,8 +41,6 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<CustomerResponse> save(@Valid @RequestBody CustomerSaveRequest customerSaveRequest) {
         Customer saveCustomer = this.modelMapperService.forRequest().map(customerSaveRequest, Customer.class);
-      //  List<Animal> animalList = this.customerService.getAnimals(customerSaveRequest.getAnimalId());
-       // saveCustomer.setAnimals(animalList);
         this.customerService.save(saveCustomer);
         return ResultHelper.created(this.modelMapperService.forResponse().map(saveCustomer, CustomerResponse.class));
     }
