@@ -2,8 +2,6 @@ package org.ferhat.vetmanagement.dto.request.customer;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class CustomerSaveRequest {
     private String name;
