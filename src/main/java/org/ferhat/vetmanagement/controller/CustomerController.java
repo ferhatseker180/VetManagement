@@ -28,13 +28,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/customers")
 public class CustomerController {
     private final ICustomerService customerService;
-    private final IAnimalService animalService;
     private final IModelMapperService modelMapperService;
 
-    public CustomerController(ICustomerService customerService, IModelMapperService modelMapperService, IAnimalService animalService) {
+    public CustomerController(ICustomerService customerService, IModelMapperService modelMapperService) {
         this.customerService = customerService;
         this.modelMapperService = modelMapperService;
-        this.animalService = animalService;
     }
 
     @PostMapping()
@@ -57,31 +55,22 @@ public class CustomerController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<CustomerResponse>> findCustomersByName(@RequestParam("name") String name) {
-        String lowerName = name.toLowerCase();
-        List<Customer> customers = this.customerService.findCustomersByNameIgnoreCase(lowerName);
 
-        if (customers.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
-        }
+        List<Customer> customers = customerService.findCustomersByNameIgnoreCase(name);
 
         List<CustomerResponse> customerResponses = new ArrayList<>();
-
         for (Customer customer : customers) {
             customerResponses.add(modelMapperService.forResponse().map(customer, CustomerResponse.class));
         }
         return ResultHelper.success(customerResponses);
     }
 
-    // Customer'ın tüm hayvanlarını listeleme
+    // Show all animals belonging to customer
     @GetMapping("/{customerId}/animals")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<AnimalResponse>> getCustomerAnimals(@PathVariable("customerId") Long customerId) {
         List<Animal> animals = this.customerService.getCustomerAnimals(customerId);
-
-        if (animals.isEmpty()) {
-            throw new NotFoundException("Not found animal");
-        }
-
+        
         List<AnimalResponse> animalResponses = animals.stream()
                 .map(animal -> modelMapperService.forResponse().map(animal, AnimalResponse.class))
                 .collect(Collectors.toList());

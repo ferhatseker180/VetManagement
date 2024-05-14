@@ -10,7 +10,9 @@ import org.ferhat.vetmanagement.repository.CustomerRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -55,7 +57,12 @@ public class CustomerManager implements ICustomerService {
 
     @Override
     public List<Customer> findCustomersByNameIgnoreCase(String name) {
-        return this.customerRepo.findCustomersByNameIgnoreCase(name);
+        String lowerName = name.toLowerCase();
+        List<Customer> customers = this.customerRepo.findCustomersByNameIgnoreCase(lowerName);
+        if (customers.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+        }
+        return customers;
     }
 
     @Override
@@ -66,7 +73,11 @@ public class CustomerManager implements ICustomerService {
     @Override
     public List<Animal> getCustomerAnimals(Long customerId) {
         Customer customer = get(customerId);
-        return customer.getAnimalList();
+        List<Animal> animals = customer.getAnimalList();
+        if (animals.isEmpty()) {
+            throw new NotFoundException("Not found animal");
+        }
+        return animals;
     }
-
 }
+
