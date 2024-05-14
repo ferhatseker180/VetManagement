@@ -1,6 +1,7 @@
 package org.ferhat.vetmanagement.business.impl;
 
 import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
+import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.entities.Animal;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,14 +20,23 @@ import java.util.List;
 public class AnimalManager implements IAnimalService {
     private final AnimalRepo animalRepo;
     private final CustomerRepo customerRepo;
+    private final ICustomerService customerService;
 
-    public AnimalManager(AnimalRepo animalRepo, CustomerRepo customerRepo) {
+    public AnimalManager(AnimalRepo animalRepo, CustomerRepo customerRepo, ICustomerService customerService) {
         this.animalRepo = animalRepo;
         this.customerRepo = customerRepo;
+        this.customerService = customerService;
     }
 
     @Override
+    @Transactional
     public Animal save(Animal animal) {
+        Long customerId = animal.getCustomer().getId();
+        Customer customer = customerService.get(customerId);
+        if (customer == null) {
+            throw new NotFoundException(Msg.NOT_FOUND);
+        }
+        animal.setCustomer(customer);
         return this.animalRepo.save(animal);
     }
 
