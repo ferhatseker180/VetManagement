@@ -4,11 +4,14 @@ import org.ferhat.vetmanagement.business.abstracts.IAvailableDateService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.entities.AvailableDate;
+import org.ferhat.vetmanagement.entities.Doctor;
 import org.ferhat.vetmanagement.repository.AvailableDateRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,7 +26,20 @@ public class AvailableDateManager implements IAvailableDateService {
 
     @Override
     public AvailableDate save(AvailableDate availableDate) {
-        return this.availableDateRepo.save(availableDate);
+        Doctor doctor = availableDate.getDoctor();
+        LocalDate date = availableDate.getAvailableDate();
+
+        if (doctor == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found");
+        }
+
+        List<AvailableDate> existingAvailableDates = findByDoctorIdAndAvailableDate(doctor.getId(), date);
+
+        if (existingAvailableDates.stream().anyMatch(availDate -> availDate.getAvailableDate().equals(date))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "An available date for the doctor on this date already exists");
+        } else {
+            return this.availableDateRepo.save(availableDate);
+        }
     }
 
     @Override
