@@ -1,7 +1,6 @@
 package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
-import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.IVaccineService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.result.Result;
@@ -11,13 +10,11 @@ import org.ferhat.vetmanagement.dto.request.vaccine.VaccineSaveRequest;
 import org.ferhat.vetmanagement.dto.request.vaccine.VaccineUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.vaccine.VaccineResponse;
-import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Vaccine;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,27 +25,20 @@ import java.util.stream.Collectors;
 public class VaccineController {
     private final IVaccineService vaccineService;
     private final IModelMapperService modelMapperService;
-    private final IAnimalService animalService;
 
-    public VaccineController(IVaccineService vaccineService, IModelMapperService modelMapperService, IAnimalService animalService) {
+    public VaccineController(IVaccineService vaccineService, IModelMapperService modelMapperService) {
         this.vaccineService = vaccineService;
         this.modelMapperService = modelMapperService;
-        this.animalService = animalService;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<VaccineResponse> save(@Valid @RequestBody VaccineSaveRequest vaccineSaveRequest) {
-        Long animalId = vaccineSaveRequest.getAnimalId();
-        Animal animal = animalService.get(animalId);
-        if (animal != null && !vaccineService.isExistingVaccine(animal, vaccineSaveRequest.getName(), vaccineSaveRequest.getCode(), vaccineSaveRequest.getProtectionFinishDate())) {
-            Vaccine saveVaccine = modelMapperService.forRequest().map(vaccineSaveRequest, Vaccine.class);
-            saveVaccine.setAnimal(animal);
-            Vaccine savedVaccine = vaccineService.save(saveVaccine);
-            VaccineResponse vaccineResponse = modelMapperService.forResponse().map(savedVaccine, VaccineResponse.class);
-            return ResultHelper.created(vaccineResponse);
-        }
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "Vaccine already exists");
+        Vaccine saveVaccine = modelMapperService.forRequest().map(vaccineSaveRequest, Vaccine.class);
+        Vaccine savedVaccine = vaccineService.save(saveVaccine);
+
+        VaccineResponse vaccineResponse = modelMapperService.forResponse().map(savedVaccine, VaccineResponse.class);
+        return ResultHelper.created(vaccineResponse);
     }
 
     @GetMapping("/{id}")
@@ -86,9 +76,6 @@ public class VaccineController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<VaccineResponse>> getVaccinesByAnimalId(@PathVariable("animalId") Long animalId) {
         List<Vaccine> vaccines = vaccineService.getByAnimalId(animalId);
-        if (vaccines.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Animal don't have vaccine");
-        }
         List<VaccineResponse> vaccineResponses = vaccines.stream()
                 .map(vaccine -> modelMapperService.forResponse().map(vaccine, VaccineResponse.class))
                 .collect(Collectors.toList());

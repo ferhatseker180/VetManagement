@@ -1,5 +1,6 @@
 package org.ferhat.vetmanagement.business.impl;
 
+import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.IVaccineService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
@@ -9,7 +10,9 @@ import org.ferhat.vetmanagement.repository.VaccineRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,13 +20,24 @@ import java.util.List;
 @Service
 public class VaccineManager implements IVaccineService {
     private final VaccineRepo vaccineRepo;
+    private final IAnimalService animalService;
 
-    public VaccineManager(VaccineRepo vaccineRepo) {
+    public VaccineManager(VaccineRepo vaccineRepo, IAnimalService animalService) {
         this.vaccineRepo = vaccineRepo;
+        this.animalService = animalService;
     }
 
     @Override
     public Vaccine save(Vaccine vaccine) {
+        Animal animal = vaccine.getAnimal();
+        if (animal == null) {
+            throw new NotFoundException("Animal not found");
+        }
+
+        if (isExistingVaccine(animal, vaccine.getName(), vaccine.getCode(), vaccine.getProtectionFinishDate())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Vaccine already exists");
+        }
+
         return this.vaccineRepo.save(vaccine);
     }
 
@@ -58,7 +72,16 @@ public class VaccineManager implements IVaccineService {
 
     @Override
     public List<Vaccine> getByAnimalId(Long animalId) {
-        return vaccineRepo.getByAnimalId(animalId);
+
+        Animal animal = animalService.get(animalId);
+        if (animal == null) {
+            throw new NotFoundException("Animal not found");
+        }
+        List<Vaccine> vaccines = vaccineRepo.getByAnimalId(animalId);
+        if (vaccines.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Animal don't have vaccine");
+        }
+        return vaccines;
     }
 
     @Override
