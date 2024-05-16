@@ -3,13 +3,15 @@ package org.ferhat.vetmanagement.controller;
 import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IAppointment;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
+import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
+import org.ferhat.vetmanagement.dto.request.appointment.AppointmentUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
-import org.ferhat.vetmanagement.dto.response.availableDate.AvailableDateResponse;
 import org.ferhat.vetmanagement.entities.Appointment;
-import org.ferhat.vetmanagement.entities.AvailableDate;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,4 +43,33 @@ public class AppointmentController {
         AppointmentResponse appointmentResponse = this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class);
         return ResultHelper.success(appointmentResponse);
     }
+
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<CursorResponse<AppointmentResponse>> cursor(
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
+
+        Page<Appointment> appointmentPage = this.appointmentService.cursor(page, pageSize);
+        Page<AppointmentResponse> appointmentResponsePage = appointmentPage
+                .map(appointment -> this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class));
+
+        return ResultHelper.cursor(appointmentResponsePage);
+    }
+
+    @PutMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<AppointmentResponse> update(@Valid @RequestBody AppointmentUpdateRequest appointmentUpdateRequest) {
+        Appointment updateAppointment = this.modelMapperService.forRequest().map(appointmentUpdateRequest, Appointment.class);
+        this.appointmentService.update(updateAppointment);
+        return ResultHelper.success(this.modelMapperService.forResponse().map(updateAppointment, AppointmentResponse.class));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Result delete(@PathVariable("id") Long id) {
+        this.appointmentService.delete(id);
+        return ResultHelper.ok();
+    }
+
 }

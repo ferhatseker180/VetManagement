@@ -30,18 +30,18 @@ public class AppointmentManager implements IAppointment {
     @Override
     public Appointment save(Appointment appointment) {
 
-        // Doktorun belirtilen tarihte müsait olup olmadığını kontrol et
+        // Check if the doctor is available on the specified date
         List<AvailableDate> availableDates = availableDateService.findByDoctorIdAndAvailableDate(appointment.getDoctor().getId(), appointment.getAppointmentDate().toLocalDate());
         if (availableDates.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Doctor is not available on the specified date");
         }
 
-        // Doktorun belirtilen saatte randevusu var mı kontrol et
+        // Check if the doctor has an appointment at the specified time
         if (!isDoctorAvailableAtHour(appointment.getAppointmentDate(), appointment.getDoctor().getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Doctor has another appointment at the specified hour");
         }
 
-        // Yeni randevunun 1 saat öncesinden daha erken veya 1 saat sonrası olup olmadığını kontrol et
+        // Check if the new appointment is 1 hour earlier or 1 hour later
         LocalDateTime startRange = appointment.getAppointmentDate().minusHours(1);
         LocalDateTime endRange = appointment.getAppointmentDate().plusHours(1);
         List<Appointment> appointmentsInTimeRange = appointmentRepo.findByDoctorIdAndAppointmentDateBetween(appointment.getDoctor().getId(), startRange, endRange);
@@ -50,10 +50,6 @@ public class AppointmentManager implements IAppointment {
         }
 
         return this.appointmentRepo.save(appointment);
-    }
-
-    private List<Appointment> findByDoctorIdAndAppointmentDateRange(Long doctorId, LocalDateTime start, LocalDateTime end) {
-        return appointmentRepo.findByDoctorIdAndAppointmentDateBetween(doctorId, start, end);
     }
 
     @Override
