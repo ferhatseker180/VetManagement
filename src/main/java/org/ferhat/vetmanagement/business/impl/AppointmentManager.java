@@ -41,7 +41,19 @@ public class AppointmentManager implements IAppointment {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Doctor has another appointment at the specified hour");
         }
 
+        // Yeni randevunun 1 saat öncesinden daha erken veya 1 saat sonrası olup olmadığını kontrol et
+        LocalDateTime startRange = appointment.getAppointmentDate().minusHours(1);
+        LocalDateTime endRange = appointment.getAppointmentDate().plusHours(1);
+        List<Appointment> appointmentsInTimeRange = appointmentRepo.findByDoctorIdAndAppointmentDateBetween(appointment.getDoctor().getId(), startRange, endRange);
+        if (!appointmentsInTimeRange.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Another appointment is scheduled within 1 hour of this time");
+        }
+
         return this.appointmentRepo.save(appointment);
+    }
+
+    private List<Appointment> findByDoctorIdAndAppointmentDateRange(Long doctorId, LocalDateTime start, LocalDateTime end) {
+        return appointmentRepo.findByDoctorIdAndAppointmentDateBetween(doctorId, start, end);
     }
 
     @Override
