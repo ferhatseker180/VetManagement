@@ -15,6 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/appointments")
 public class AppointmentController {
@@ -42,6 +45,26 @@ public class AppointmentController {
         Appointment appointment = this.appointmentService.get(id);
         AppointmentResponse appointmentResponse = this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class);
         return ResultHelper.success(appointmentResponse);
+    }
+
+    @GetMapping("/animalId")
+    @ResponseStatus(HttpStatus.OK)
+    public List<AppointmentResponse> findByAppointmentDateBetweenAndAnimalId(
+            @RequestParam("startDate") LocalDateTime startDate,
+            @RequestParam("endDate") LocalDateTime endDate,
+            @RequestParam("animalId") Long animalId
+    ) {
+        return appointmentService.findByAppointmentDateBetweenAndAnimalId(startDate, endDate, animalId);
+    }
+
+    @GetMapping("/doctorId")
+    @ResponseStatus(HttpStatus.OK)
+    public List<AppointmentResponse> findByAppointmentDateBetweenAndDoctorId(
+            @RequestParam("startDate") LocalDateTime startDate,
+            @RequestParam("endDate") LocalDateTime endDate,
+            @RequestParam("doctorId") Long doctorId
+    ) {
+        return appointmentService.findByAppointmentDateBetweenAndDoctorId(startDate, endDate, doctorId);
     }
 
     @GetMapping()

@@ -1,10 +1,9 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
 import org.ferhat.vetmanagement.entities.Appointment;
-import org.ferhat.vetmanagement.entities.AvailableDate;
 import org.springframework.data.domain.Page;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,6 +22,10 @@ public interface IAppointment {
     List<Appointment> findByDoctorIdAndAppointmentDate(Long doctorId, LocalDateTime appointmentDate);
 
     boolean isDoctorAvailableAtHour(LocalDateTime hour, Long doctorId);
+
+    List<AppointmentResponse> findByAppointmentDateBetweenAndAnimalId (LocalDateTime startDate, LocalDateTime endDate, Long animalId);
+
+    List<AppointmentResponse> findByAppointmentDateBetweenAndDoctorId (LocalDateTime startDate, LocalDateTime endDate, Long doctorId);
 
 
 }

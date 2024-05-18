@@ -2,8 +2,10 @@ package org.ferhat.vetmanagement.business.impl;
 
 import org.ferhat.vetmanagement.business.abstracts.IAppointment;
 import org.ferhat.vetmanagement.business.abstracts.IAvailableDateService;
+import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
 import org.ferhat.vetmanagement.entities.Appointment;
 import org.ferhat.vetmanagement.entities.AvailableDate;
 import org.ferhat.vetmanagement.repository.AppointmentRepo;
@@ -16,15 +18,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentManager implements IAppointment {
     private final AppointmentRepo appointmentRepo;
     private final IAvailableDateService availableDateService;
+    private final IModelMapperService modelMapperService;
 
-    public AppointmentManager(AppointmentRepo appointmentRepo, IAvailableDateService availableDateService) {
+    public AppointmentManager(AppointmentRepo appointmentRepo, IAvailableDateService availableDateService, IModelMapperService modelMapperService) {
         this.appointmentRepo = appointmentRepo;
         this.availableDateService = availableDateService;
+        this.modelMapperService = modelMapperService;
     }
 
     @Override
@@ -85,5 +90,21 @@ public class AppointmentManager implements IAppointment {
     public boolean isDoctorAvailableAtHour(LocalDateTime hour, Long doctorId) {
         List<Appointment> appointmentList = appointmentRepo.findByDoctorIdAndAppointmentDate(doctorId, hour);
         return appointmentList.isEmpty();
+    }
+
+    @Override
+    public List<AppointmentResponse> findByAppointmentDateBetweenAndAnimalId(LocalDateTime startDate, LocalDateTime endDate, Long animalId) {
+        List<Appointment> appointments = appointmentRepo.findByAppointmentDateBetweenAndAnimalId(startDate, endDate, animalId);
+        return appointments.stream()
+                .map(appointment -> modelMapperService.forResponse().map(appointment, AppointmentResponse.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AppointmentResponse> findByAppointmentDateBetweenAndDoctorId(LocalDateTime startDate, LocalDateTime endDate, Long doctorId) {
+        List<Appointment> appointments = appointmentRepo.findByAppointmentDateBetweenAndDoctorId(startDate, endDate, doctorId);
+        return appointments.stream()
+                .map(appointment -> modelMapperService.forResponse().map(appointment, AppointmentResponse.class))
+                .collect(Collectors.toList());
     }
 }
