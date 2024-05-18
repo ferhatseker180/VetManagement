@@ -1,10 +1,8 @@
 package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
-import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
-import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
@@ -18,7 +16,6 @@ import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +67,7 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<AnimalResponse>> getCustomerAnimals(@PathVariable("customerId") Long customerId) {
         List<Animal> animals = this.customerService.getCustomerAnimals(customerId);
-        
+
         List<AnimalResponse> animalResponses = animals.stream()
                 .map(animal -> modelMapperService.forResponse().map(animal, AnimalResponse.class))
                 .collect(Collectors.toList());

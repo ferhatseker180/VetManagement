@@ -1,5 +1,7 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
+import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
@@ -8,7 +10,7 @@ import java.util.List;
 
 public interface IAnimalService {
 
-    Animal save(Animal animal);
+    AnimalResponse save(AnimalSaveRequest animalSaveRequest);
 
     Animal update(Animal animal);
 

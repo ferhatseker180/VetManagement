@@ -2,8 +2,11 @@ package org.ferhat.vetmanagement.business.impl;
 
 import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
+import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
+import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.ferhat.vetmanagement.repository.AnimalRepo;
@@ -21,24 +24,29 @@ public class AnimalManager implements IAnimalService {
     private final AnimalRepo animalRepo;
     private final CustomerRepo customerRepo;
     private final ICustomerService customerService;
+    private final IModelMapperService modelMapperService;
 
-    public AnimalManager(AnimalRepo animalRepo, CustomerRepo customerRepo, ICustomerService customerService) {
+    public AnimalManager(AnimalRepo animalRepo, CustomerRepo customerRepo, ICustomerService customerService, IModelMapperService modelMapperService) {
         this.animalRepo = animalRepo;
         this.customerRepo = customerRepo;
         this.customerService = customerService;
+        this.modelMapperService = modelMapperService;
     }
 
     @Override
     @Transactional
-    public Animal save(Animal animal) {
-        Long customerId = animal.getCustomer().getId();
+    public AnimalResponse save(AnimalSaveRequest animalSaveRequest) {
+        Animal saveAnimal = modelMapperService.forRequest().map(animalSaveRequest, Animal.class);
+        Long customerId = saveAnimal.getCustomer().getId();
         Customer customer = customerService.get(customerId);
         if (customer == null) {
             throw new NotFoundException(Msg.NOT_FOUND);
         }
-        animal.setCustomer(customer);
-        return this.animalRepo.save(animal);
+        saveAnimal.setCustomer(customer);
+        Animal savedAnimal = this.animalRepo.save(saveAnimal);
+        return modelMapperService.forResponse().map(savedAnimal, AnimalResponse.class);
     }
+
 
     @Override
     public Animal update(Animal animal) {

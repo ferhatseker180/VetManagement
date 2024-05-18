@@ -1,6 +1,9 @@
 package org.ferhat.vetmanagement.dto.response.doctor;
 
 import lombok.Data;
+import org.ferhat.vetmanagement.entities.AvailableDate;
+
+import java.util.List;
 
 @Data
 public class DoctorResponse {
@@ -11,6 +14,5 @@ public class DoctorResponse {
     private String mail;
     private String address;
     private String city;
-    //  private List<AvailableResponse> avaliableIdList;
-    //  private List<AppointmentResponse> appointmentIdList;
+    private List<AvailableDate> availableDateList;
 }

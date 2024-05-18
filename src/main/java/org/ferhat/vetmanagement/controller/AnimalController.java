@@ -33,9 +33,7 @@ public class AnimalController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AnimalResponse> save(@Valid @RequestBody AnimalSaveRequest animalSaveRequest) {
-        Animal saveAnimal = modelMapperService.forRequest().map(animalSaveRequest, Animal.class);
-        Animal savedAnimal = animalService.save(saveAnimal);
-        AnimalResponse animalResponse = modelMapperService.forResponse().map(savedAnimal, AnimalResponse.class);
+        AnimalResponse animalResponse = animalService.save(animalSaveRequest);
         return ResultHelper.created(animalResponse);
     }
 
