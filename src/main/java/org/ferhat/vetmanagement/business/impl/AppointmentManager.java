@@ -5,6 +5,7 @@ import org.ferhat.vetmanagement.business.abstracts.IAvailableDateService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
 import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
 import org.ferhat.vetmanagement.entities.Appointment;
 import org.ferhat.vetmanagement.entities.AvailableDate;
@@ -58,21 +59,32 @@ public class AppointmentManager implements IAppointment {
     }
 
     @Override
+    public AppointmentResponse saveAppointment(AppointmentSaveRequest appointmentSaveRequest) {
+        Appointment saveAppointment = this.modelMapperService.forRequest().map(appointmentSaveRequest, Appointment.class);
+        Appointment savedAppointment = this.save(saveAppointment);
+        return modelMapperService.forResponse().map(savedAppointment, AppointmentResponse.class);
+    }
+
+    @Override
     public Appointment update(Appointment appointment) {
         this.get(appointment.getId());
         return this.appointmentRepo.save(appointment);
     }
 
+
     @Override
     public boolean delete(Long id) {
-        Appointment appointment = this.get(id);
+        Appointment appointment = this.appointmentRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
         this.appointmentRepo.delete(appointment);
         return true;
     }
 
     @Override
-    public Appointment get(Long id) {
-        return this.appointmentRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+    public AppointmentResponse get(Long id) {
+        Appointment appointment = this.appointmentRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        return this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class);
     }
 
     @Override

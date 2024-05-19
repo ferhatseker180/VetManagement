@@ -33,17 +33,14 @@ public class AppointmentController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AppointmentResponse> save(@Valid @RequestBody AppointmentSaveRequest appointmentSaveRequest) {
-        Appointment saveAppointment = this.modelMapperService.forRequest().map(appointmentSaveRequest, Appointment.class);
-        Appointment savedAppointment = appointmentService.save(saveAppointment);
-        AppointmentResponse appointmentResponse = modelMapperService.forResponse().map(savedAppointment, AppointmentResponse.class);
+        AppointmentResponse appointmentResponse = appointmentService.saveAppointment(appointmentSaveRequest);
         return ResultHelper.created(appointmentResponse);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<AppointmentResponse> get(@PathVariable("id") Long id) {
-        Appointment appointment = this.appointmentService.get(id);
-        AppointmentResponse appointmentResponse = this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class);
+        AppointmentResponse appointmentResponse = this.appointmentService.get(id);
         return ResultHelper.success(appointmentResponse);
     }
 
@@ -83,6 +80,7 @@ public class AppointmentController {
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public ResultData<AppointmentResponse> update(@Valid @RequestBody AppointmentUpdateRequest appointmentUpdateRequest) {
+
         Appointment updateAppointment = this.modelMapperService.forRequest().map(appointmentUpdateRequest, Appointment.class);
         this.appointmentService.update(updateAppointment);
         return ResultHelper.success(this.modelMapperService.forResponse().map(updateAppointment, AppointmentResponse.class));
