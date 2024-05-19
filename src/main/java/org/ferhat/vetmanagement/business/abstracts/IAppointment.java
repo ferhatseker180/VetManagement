@@ -1,5 +1,7 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
+import org.ferhat.vetmanagement.dto.request.appointment.AppointmentUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
 import org.ferhat.vetmanagement.entities.Appointment;
 import org.springframework.data.domain.Page;
@@ -11,11 +13,13 @@ public interface IAppointment {
 
     Appointment save(Appointment appointment);
 
+    AppointmentResponse saveAppointment(AppointmentSaveRequest appointmentSaveRequest);
+
     Appointment update(Appointment appointment);
 
     boolean delete(Long id);
 
-    Appointment get(Long id);
+    AppointmentResponse get(Long id);
 
     Page<Appointment> cursor(int page, int pageSize);
 
@@ -23,9 +27,9 @@ public interface IAppointment {
 
     boolean isDoctorAvailableAtHour(LocalDateTime hour, Long doctorId);
 
-    List<AppointmentResponse> findByAppointmentDateBetweenAndAnimalId (LocalDateTime startDate, LocalDateTime endDate, Long animalId);
+    List<AppointmentResponse> findByAppointmentDateBetweenAndAnimalId(LocalDateTime startDate, LocalDateTime endDate, Long animalId);
 
-    List<AppointmentResponse> findByAppointmentDateBetweenAndDoctorId (LocalDateTime startDate, LocalDateTime endDate, Long doctorId);
+    List<AppointmentResponse> findByAppointmentDateBetweenAndDoctorId(LocalDateTime startDate, LocalDateTime endDate, Long doctorId);
 
 
 }
