@@ -40,8 +40,7 @@ public class AnimalController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<AnimalResponse> get(@PathVariable("id") Long id) {
-        Animal animal = this.animalService.get(id);
-        AnimalResponse animalResponse = this.modelMapperService.forResponse().map(animal, AnimalResponse.class);
+        AnimalResponse animalResponse = animalService.getAnimalResponseById(id);
         return ResultHelper.success(animalResponse);
     }
 
@@ -49,17 +48,7 @@ public class AnimalController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<AnimalResponse>> findAnimalsByNameIgnoreCase(@RequestParam("name") String name) {
-        List<Animal> animals = this.animalService.findAnimalsByNameIgnoreCase(name);
-
-        if (animals.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Animal not found");
-        }
-
-        List<AnimalResponse> animalResponses = new ArrayList<>();
-
-        for (Animal animal : animals) {
-            animalResponses.add(modelMapperService.forResponse().map(animal, AnimalResponse.class));
-        }
+        List<AnimalResponse> animalResponses = animalService.findAnimalsByNameIgnoreCase(name);
         return ResultHelper.success(animalResponses);
     }
 
@@ -78,10 +67,9 @@ public class AnimalController {
 
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
-    public ResultData<AnimalResponse> update(@Valid @RequestBody AnimalUpdateRequest animalUpdateRequest) {
-        Animal updateAnimal = this.modelMapperService.forRequest().map(animalUpdateRequest, Animal.class);
-        this.animalService.update(updateAnimal);
-        return ResultHelper.success(this.modelMapperService.forResponse().map(updateAnimal, AnimalResponse.class));
+    public AnimalResponse update(@Valid @RequestBody AnimalUpdateRequest animalUpdateRequest) {
+        return this.animalService.updateAndReturnResponse(animalUpdateRequest);
+
     }
 
     @DeleteMapping("/{id}")

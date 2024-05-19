@@ -6,6 +6,7 @@ import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
+import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AnimalManager implements IAnimalService {
@@ -55,6 +57,14 @@ public class AnimalManager implements IAnimalService {
     }
 
     @Override
+    public AnimalResponse updateAndReturnResponse(AnimalUpdateRequest animalUpdateRequest) {
+        Animal updateAnimal = this.modelMapperService.forRequest().map(animalUpdateRequest, Animal.class);
+        Animal updatedAnimal = this.update(updateAnimal);
+        return this.modelMapperService.forResponse().map(updatedAnimal, AnimalResponse.class);
+    }
+
+
+    @Override
     public boolean delete(Long id) {
         Animal animal = this.get(id);
         this.animalRepo.delete(animal);
@@ -64,6 +74,12 @@ public class AnimalManager implements IAnimalService {
     @Override
     public Animal get(Long id) {
         return this.animalRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+    }
+
+    @Override
+    public AnimalResponse getAnimalResponseById(Long id) {
+        Animal animal = get(id);
+        return modelMapperService.forResponse().map(animal, AnimalResponse.class);
     }
 
     @Override
@@ -83,7 +99,13 @@ public class AnimalManager implements IAnimalService {
     }
 
     @Override
-    public List<Animal> findAnimalsByNameIgnoreCase(String name) {
-        return this.animalRepo.findAnimalsByNameIgnoreCase(name);
+    public List<AnimalResponse> findAnimalsByNameIgnoreCase(String name) {
+        List<Animal> animals = this.animalRepo.findAnimalsByNameIgnoreCase(name);
+        if (animals.isEmpty()) {
+            throw new NotFoundException("Animal not found");
+        }
+        return animals.stream()
+                .map(animal -> modelMapperService.forResponse().map(animal, AnimalResponse.class))
+                .collect(Collectors.toList());
     }
 }

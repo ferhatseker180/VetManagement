@@ -1,6 +1,7 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
 import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
+import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
@@ -14,9 +15,13 @@ public interface IAnimalService {
 
     Animal update(Animal animal);
 
+    AnimalResponse updateAndReturnResponse(AnimalUpdateRequest animalUpdateRequest);
+
     boolean delete(Long id);
 
     Animal get(Long id);
+
+    AnimalResponse getAnimalResponseById(Long id);
 
     List<Animal> getAll();
 
@@ -24,5 +29,5 @@ public interface IAnimalService {
 
     Customer getCustomer(Long id);
 
-    List<Animal> findAnimalsByNameIgnoreCase(String name);
+    List<AnimalResponse> findAnimalsByNameIgnoreCase(String name);
 }
