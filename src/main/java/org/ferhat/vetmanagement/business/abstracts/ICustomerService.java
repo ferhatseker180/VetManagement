@@ -1,5 +1,6 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,7 @@ public interface ICustomerService {
 
     Page<Customer> cursor(int page, int pageSize);
 
-    List<Customer> findCustomersByNameIgnoreCase(String name);
+    List<CustomerResponse> findCustomersByNameIgnoreCase(String name);
 
     List<Animal> getAnimals(List<Long> idList);
 

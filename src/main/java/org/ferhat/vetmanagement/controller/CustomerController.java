@@ -52,13 +52,7 @@ public class CustomerController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<CustomerResponse>> findCustomersByName(@RequestParam("name") String name) {
-
-        List<Customer> customers = customerService.findCustomersByNameIgnoreCase(name);
-
-        List<CustomerResponse> customerResponses = new ArrayList<>();
-        for (Customer customer : customers) {
-            customerResponses.add(modelMapperService.forResponse().map(customer, CustomerResponse.class));
-        }
+        List<CustomerResponse> customerResponses = customerService.findCustomersByNameIgnoreCase(name);
         return ResultHelper.success(customerResponses);
     }
 
