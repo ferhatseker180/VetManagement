@@ -4,6 +4,7 @@ import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
@@ -79,13 +80,16 @@ public class CustomerManager implements ICustomerService {
     }
 
     @Override
-    public List<Animal> getCustomerAnimals(Long customerId) {
+    public List<AnimalResponse> getCustomerAnimals(Long customerId) {
         Customer customer = get(customerId);
         List<Animal> animals = customer.getAnimalList();
         if (animals.isEmpty()) {
             throw new NotFoundException("Not found animal");
         }
-        return animals;
+
+        return animals.stream()
+                .map(animal -> modelMapperService.forResponse().map(animal, AnimalResponse.class))
+                .collect(Collectors.toList());
     }
 }
 

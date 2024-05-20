@@ -1,5 +1,6 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
@@ -23,5 +24,5 @@ public interface ICustomerService {
 
     List<Animal> getAnimals(List<Long> idList);
 
-    List<Animal> getCustomerAnimals(Long customerId);
+    List<AnimalResponse> getCustomerAnimals(Long customerId);
 }
