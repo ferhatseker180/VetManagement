@@ -2,8 +2,13 @@ package org.ferhat.vetmanagement.business.impl;
 
 import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.IVaccineService;
+import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
+import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.dto.request.vaccine.VaccineSaveRequest;
+import org.ferhat.vetmanagement.dto.response.vaccine.VaccineResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Vaccine;
 import org.ferhat.vetmanagement.repository.VaccineRepo;
@@ -16,29 +21,43 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class VaccineManager implements IVaccineService {
     private final VaccineRepo vaccineRepo;
     private final IAnimalService animalService;
+    private final IModelMapperService modelMapperService;
 
-    public VaccineManager(VaccineRepo vaccineRepo, IAnimalService animalService) {
+    public VaccineManager(VaccineRepo vaccineRepo, IAnimalService animalService, IModelMapperService modelMapperService) {
         this.vaccineRepo = vaccineRepo;
         this.animalService = animalService;
+        this.modelMapperService = modelMapperService;
     }
 
     @Override
-    public Vaccine save(Vaccine vaccine) {
-        Animal animal = vaccine.getAnimal();
+    public ResultData<VaccineResponse> save(VaccineSaveRequest vaccineSaveRequest) {
+        // Convert to Vaccine Object
+        Vaccine vaccineToSave = modelMapperService.forRequest().map(vaccineSaveRequest, Vaccine.class);
+
+        // Check vet and animal
+        Animal animal = vaccineToSave.getAnimal();
         if (animal == null) {
-            throw new NotFoundException("Animal not found");
+            throw new NotFoundException("Hayvan bulunamadı");
         }
 
-        if (isExistingVaccine(animal, vaccine.getName(), vaccine.getCode(), vaccine.getProtectionFinishDate())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Vaccine already exists");
+        // Check Available Same Name ve Same Finish Protection Time
+        if (isExistingVaccine(animal, vaccineToSave.getName(), vaccineToSave.getCode(), vaccineToSave.getProtectionFinishDate())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Aşı zaten mevcut");
         }
 
-        return this.vaccineRepo.save(vaccine);
+        // Save Vaccine
+        Vaccine savedVaccine = vaccineRepo.save(vaccineToSave);
+
+        // Convert to Vaccine
+        VaccineResponse vaccineResponse = modelMapperService.forResponse().map(savedVaccine, VaccineResponse.class);
+
+        return ResultHelper.created(vaccineResponse);
     }
 
     @Override
@@ -90,4 +109,11 @@ public class VaccineManager implements IVaccineService {
     public List<Vaccine> findByProtectionStartDateBetween(LocalDate startDate, LocalDate endDate) {
         return vaccineRepo.findByProtectionStartDateBetween(startDate, endDate);
     }
+
+    public List<VaccineResponse> mapToResponse(List<Vaccine> vaccines) {
+        return vaccines.stream()
+                .map(vaccine -> modelMapperService.forResponse().map(vaccine, VaccineResponse.class))
+                .collect(Collectors.toList());
+    }
+
 }

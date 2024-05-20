@@ -34,11 +34,7 @@ public class VaccineController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<VaccineResponse> save(@Valid @RequestBody VaccineSaveRequest vaccineSaveRequest) {
-        Vaccine saveVaccine = modelMapperService.forRequest().map(vaccineSaveRequest, Vaccine.class);
-        Vaccine savedVaccine = vaccineService.save(saveVaccine);
-
-        VaccineResponse vaccineResponse = modelMapperService.forResponse().map(savedVaccine, VaccineResponse.class);
-        return ResultHelper.created(vaccineResponse);
+        return vaccineService.save(vaccineSaveRequest);
     }
 
     @GetMapping("/{id}")
@@ -53,9 +49,7 @@ public class VaccineController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<VaccineResponse>> getAllVaccines() {
         List<Vaccine> vaccines = vaccineService.getAll();
-        List<VaccineResponse> vaccineResponses = vaccines.stream()
-                .map(vaccine -> modelMapperService.forResponse().map(vaccine, VaccineResponse.class))
-                .collect(Collectors.toList());
+        List<VaccineResponse> vaccineResponses = vaccineService.mapToResponse(vaccines);
         return ResultHelper.success(vaccineResponses);
     }
 
