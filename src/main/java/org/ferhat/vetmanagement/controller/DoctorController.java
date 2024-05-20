@@ -73,6 +73,7 @@ public class DoctorController {
         return ResultHelper.success(this.modelMapperService.forResponse().map(updateDoctor, DoctorResponse.class));
     }
 
+    
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id) {
