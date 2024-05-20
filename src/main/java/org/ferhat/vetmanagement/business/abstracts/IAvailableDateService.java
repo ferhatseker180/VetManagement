@@ -1,14 +1,15 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.dto.request.availableDate.AvailableSaveRequest;
+import org.ferhat.vetmanagement.dto.response.availableDate.AvailableDateResponse;
 import org.ferhat.vetmanagement.entities.AvailableDate;
-import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface IAvailableDateService {
 
-    AvailableDate save(AvailableDate availableDate);
+    AvailableDateResponse save(AvailableSaveRequest availableSaveRequest);
 
     AvailableDate update(AvailableDate availableDate);
 
@@ -16,7 +17,7 @@ public interface IAvailableDateService {
 
     AvailableDate get(Long id);
 
-    Page<AvailableDate> cursor(int page, int pageSize);
+    AvailableDateResponse mapToResponse(AvailableDate availableDate);
 
-     List<AvailableDate> findByDoctorIdAndAvailableDate(Long doctorId, LocalDate date);
+    List<AvailableDate> findByDoctorIdAndAvailableDate(Long doctorId, LocalDate date);
 }

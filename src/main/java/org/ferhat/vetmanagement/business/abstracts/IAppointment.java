@@ -1,7 +1,6 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
-import org.ferhat.vetmanagement.dto.request.appointment.AppointmentUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
 import org.ferhat.vetmanagement.entities.Appointment;
 import org.springframework.data.domain.Page;

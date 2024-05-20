@@ -72,16 +72,7 @@ public class VaccineManager implements IVaccineService {
 
     @Override
     public List<Vaccine> getByAnimalId(Long animalId) {
-
-        Animal animal = animalService.get(animalId);
-        if (animal == null) {
-            throw new NotFoundException("Animal not found");
-        }
-        List<Vaccine> vaccines = vaccineRepo.getByAnimalId(animalId);
-        if (vaccines.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Animal don't have vaccine");
-        }
-        return vaccines;
+        return vaccineRepo.getByAnimalId(animalId);
     }
 
     @Override

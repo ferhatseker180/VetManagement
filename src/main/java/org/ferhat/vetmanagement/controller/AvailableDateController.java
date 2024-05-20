@@ -8,10 +8,8 @@ import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.request.availableDate.AvailableSaveRequest;
 import org.ferhat.vetmanagement.dto.request.availableDate.AvailableUpdateRequest;
-import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.availableDate.AvailableDateResponse;
 import org.ferhat.vetmanagement.entities.AvailableDate;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,32 +28,19 @@ public class AvailableDateController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AvailableDateResponse> save(@Valid @RequestBody AvailableSaveRequest availableSaveRequest) {
-        AvailableDate saveAvailable = this.modelMapperService.forRequest().map(availableSaveRequest, AvailableDate.class);
-        AvailableDate savedAvailableDate = availableDateService.save(saveAvailable);
-        AvailableDateResponse availableDateResponse = modelMapperService.forResponse().map(savedAvailableDate, AvailableDateResponse.class);
-        return ResultHelper.created(availableDateResponse);
+        AvailableDateResponse response = availableDateService.save(availableSaveRequest);
+        return ResultHelper.created(response);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<AvailableDateResponse> get(@PathVariable("id") Long id) {
+
         AvailableDate availableDate = this.availableDateService.get(id);
         AvailableDateResponse availableDateResponse = this.modelMapperService.forResponse().map(availableDate, AvailableDateResponse.class);
         return ResultHelper.success(availableDateResponse);
     }
 
-    @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
-    public ResultData<CursorResponse<AvailableDateResponse>> cursor(
-            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
-
-        Page<AvailableDate> availableDatePage = this.availableDateService.cursor(page, pageSize);
-        Page<AvailableDateResponse> availableDateResponsePage = availableDatePage
-                .map(availableDate -> this.modelMapperService.forResponse().map(availableDate, AvailableDateResponse.class));
-
-        return ResultHelper.cursor(availableDateResponsePage);
-    }
 
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
