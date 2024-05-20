@@ -48,10 +48,7 @@ public class DoctorController {
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<DoctorResponse>> getAllDoctors() {
-        List<Doctor> doctors = doctorService.getAll();
-        List<DoctorResponse> doctorResponses = doctors.stream()
-                .map(doctor -> modelMapperService.forResponse().map(doctor, DoctorResponse.class))
-                .collect(Collectors.toList());
+        List<DoctorResponse> doctorResponses = doctorService.getAll();
         return ResultHelper.success(doctorResponses);
     }
 

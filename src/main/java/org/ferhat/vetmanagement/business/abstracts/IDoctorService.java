@@ -1,5 +1,6 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.dto.response.doctor.DoctorResponse;
 import org.ferhat.vetmanagement.entities.Doctor;
 import org.springframework.data.domain.Page;
 
@@ -15,7 +16,7 @@ public interface IDoctorService {
 
     Doctor get(Long id);
 
-    List<Doctor> getAll();
+    List<DoctorResponse> getAll();
 
     Page<Doctor> cursor(int page, int pageSize);
 }

@@ -1,8 +1,10 @@
 package org.ferhat.vetmanagement.business.impl;
 
 import org.ferhat.vetmanagement.business.abstracts.IDoctorService;
+import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.dto.response.doctor.DoctorResponse;
 import org.ferhat.vetmanagement.entities.Doctor;
 import org.ferhat.vetmanagement.repository.DoctorRepo;
 import org.springframework.data.domain.Page;
@@ -11,12 +13,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class DoctorManager implements IDoctorService {
     private final DoctorRepo doctorRepo;
+    private final IModelMapperService modelMapperService;
 
-    public DoctorManager(DoctorRepo doctorRepo) {
+    public DoctorManager(DoctorRepo doctorRepo, IModelMapperService modelMapperService) {
         this.doctorRepo = doctorRepo;
+        this.modelMapperService = modelMapperService;
     }
 
     @Override
@@ -43,8 +49,11 @@ public class DoctorManager implements IDoctorService {
     }
 
     @Override
-    public List<Doctor> getAll() {
-        return this.doctorRepo.findAll();
+    public List<DoctorResponse> getAll() {
+        List<Doctor> doctors = doctorRepo.findAll();
+        return doctors.stream()
+                .map(doctor -> modelMapperService.forResponse().map(doctor, DoctorResponse.class))
+                .collect(Collectors.toList());
     }
 
     @Override
