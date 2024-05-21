@@ -11,6 +11,7 @@ import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
+import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
 import org.ferhat.vetmanagement.repository.AnimalRepo;
@@ -43,11 +44,11 @@ public class AnimalManager implements IAnimalService {
     public ResultData<AnimalResponse> save(AnimalSaveRequest animalSaveRequest) {
         Animal saveAnimal = modelMapperService.forRequest().map(animalSaveRequest, Animal.class);
         Long customerId = saveAnimal.getCustomer().getId();
-        Customer customer = customerService.get(customerId);
-        if (customer == null) {
+        CustomerResponse customerResponse = customerService.get(customerId);
+        if (customerResponse == null) {
             throw new NotFoundException(Msg.NOT_FOUND);
         }
-        saveAnimal.setCustomer(customer);
+        saveAnimal.setCustomer(modelMapperService.forRequest().map(customerResponse, Customer.class));
         Animal savedAnimal = this.animalRepo.save(saveAnimal);
         AnimalResponse animalResponse = modelMapperService.forResponse().map(savedAnimal, AnimalResponse.class);
         return ResultHelper.created(animalResponse);
