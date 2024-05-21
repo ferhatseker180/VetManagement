@@ -1,6 +1,7 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
 import org.ferhat.vetmanagement.dto.request.availableDate.AvailableSaveRequest;
+import org.ferhat.vetmanagement.dto.request.availableDate.AvailableUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.availableDate.AvailableDateResponse;
 import org.ferhat.vetmanagement.entities.AvailableDate;
 
@@ -11,11 +12,11 @@ public interface IAvailableDateService {
 
     AvailableDateResponse save(AvailableSaveRequest availableSaveRequest);
 
-    AvailableDate update(AvailableDate availableDate);
+    AvailableDateResponse update(AvailableUpdateRequest availableUpdateRequest);
 
     boolean delete(Long id);
 
-    AvailableDate get(Long id);
+    AvailableDateResponse get(Long id);
 
     AvailableDateResponse mapToResponse(AvailableDate availableDate);
 

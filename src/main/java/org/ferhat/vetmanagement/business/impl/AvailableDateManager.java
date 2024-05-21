@@ -5,6 +5,7 @@ import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.dto.request.availableDate.AvailableSaveRequest;
+import org.ferhat.vetmanagement.dto.request.availableDate.AvailableUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.availableDate.AvailableDateResponse;
 import org.ferhat.vetmanagement.dto.response.doctor.DoctorResponse;
 import org.ferhat.vetmanagement.entities.AvailableDate;
@@ -50,21 +51,26 @@ public class AvailableDateManager implements IAvailableDateService {
     }
 
     @Override
-    public AvailableDate update(AvailableDate availableDate) {
-        this.get(availableDate.getId());
-        return this.availableDateRepo.save(availableDate);
+    public AvailableDateResponse update(AvailableUpdateRequest availableUpdateRequest) {
+        AvailableDate updateAvailable = this.modelMapperService.forRequest().map(availableUpdateRequest, AvailableDate.class);
+        this.get(updateAvailable.getId()); // Check available has or not
+        AvailableDate updatedAvailableDate = this.availableDateRepo.save(updateAvailable);
+        return modelMapperService.forResponse().map(updatedAvailableDate, AvailableDateResponse.class);
     }
 
     @Override
     public boolean delete(Long id) {
-        AvailableDate availableDate = this.get(id);
+        AvailableDate availableDate = this.availableDateRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
         this.availableDateRepo.delete(availableDate);
         return true;
     }
 
     @Override
-    public AvailableDate get(Long id) {
-        return this.availableDateRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+    public AvailableDateResponse get(Long id) {
+        AvailableDate availableDate = this.availableDateRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        return modelMapperService.forResponse().map(availableDate, AvailableDateResponse.class);
     }
 
 
