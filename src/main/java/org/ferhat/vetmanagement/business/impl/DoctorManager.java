@@ -3,7 +3,12 @@ package org.ferhat.vetmanagement.business.impl;
 import org.ferhat.vetmanagement.business.abstracts.IDoctorService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
+import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.dto.request.doctor.DoctorSaveRequest;
+import org.ferhat.vetmanagement.dto.request.doctor.DoctorUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.doctor.DoctorResponse;
 import org.ferhat.vetmanagement.entities.Doctor;
 import org.ferhat.vetmanagement.repository.DoctorRepo;
@@ -26,27 +31,32 @@ public class DoctorManager implements IDoctorService {
     }
 
     @Override
-    public Doctor save(Doctor doctor) {
-        return this.doctorRepo.save(doctor);
+    public DoctorResponse save(DoctorSaveRequest doctorSaveRequest) {
+        Doctor saveDoctor = modelMapperService.forRequest().map(doctorSaveRequest, Doctor.class);
+        Doctor savedDoctor = this.doctorRepo.save(saveDoctor);
+        return modelMapperService.forResponse().map(savedDoctor, DoctorResponse.class);
     }
 
     @Override
-    public Doctor update(Doctor doctor) {
-        this.get(doctor.getId());
-        return this.doctorRepo.save(doctor);
+    public DoctorResponse update(DoctorUpdateRequest doctorUpdateRequest) {
+        Doctor updateDoctor = modelMapperService.forRequest().map(doctorUpdateRequest, Doctor.class);
+        this.get(updateDoctor.getId());
+        Doctor updatedDoctor = doctorRepo.save(updateDoctor);
+        return modelMapperService.forResponse().map(updatedDoctor, DoctorResponse.class);
     }
 
     @Override
     public boolean delete(Long id) {
-        Doctor doctor = this.get(id);
+        Doctor doctor = this.doctorRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
         this.doctorRepo.delete(doctor);
         return true;
     }
 
     @Override
-    public Doctor get(Long id) {
-        return this.doctorRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
-    }
+    public DoctorResponse get(Long id) {
+        Doctor doctor = this.doctorRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        return modelMapperService.forResponse().map(doctor, DoctorResponse.class);    }
 
     @Override
     public List<DoctorResponse> getAll() {
@@ -57,8 +67,11 @@ public class DoctorManager implements IDoctorService {
     }
 
     @Override
-    public Page<Doctor> cursor(int page, int pageSize) {
+    public ResultData<CursorResponse<DoctorResponse>> cursor(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        return this.doctorRepo.findAll(pageable);
+        Page<Doctor> doctorPage = this.doctorRepo.findAll(pageable);
+        Page<DoctorResponse> doctorResponsePage = doctorPage
+                .map(doctor -> this.modelMapperService.forResponse().map(doctor, DoctorResponse.class));
+        return ResultHelper.cursor(doctorResponsePage);
     }
 }

@@ -21,26 +21,22 @@ import java.util.List;
 @RequestMapping("/v1/doctors")
 public class DoctorController {
     private final IDoctorService doctorService;
-    private final IModelMapperService modelMapperService;
 
-    public DoctorController(IDoctorService doctorService, IModelMapperService modelMapperService) {
+    public DoctorController(IDoctorService doctorService) {
         this.doctorService = doctorService;
-        this.modelMapperService = modelMapperService;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<DoctorResponse> save(@Valid @RequestBody DoctorSaveRequest doctorSaveRequest) {
-        Doctor saveDoctor = this.modelMapperService.forRequest().map(doctorSaveRequest, Doctor.class);
-        this.doctorService.save(saveDoctor);
-        return ResultHelper.created(this.modelMapperService.forResponse().map(saveDoctor, DoctorResponse.class));
+        DoctorResponse doctorResponse = this.doctorService.save(doctorSaveRequest);
+        return ResultHelper.created(doctorResponse);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<DoctorResponse> get(@PathVariable("id") Long id) {
-        Doctor doctor = this.doctorService.get(id);
-        DoctorResponse doctorResponse = this.modelMapperService.forResponse().map(doctor, DoctorResponse.class);
+        DoctorResponse doctorResponse = this.doctorService.get(id);
         return ResultHelper.success(doctorResponse);
     }
 
@@ -57,19 +53,14 @@ public class DoctorController {
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
-        Page<Doctor> doctorPage = this.doctorService.cursor(page, pageSize);
-        Page<DoctorResponse> doctorResponsePage = doctorPage
-                .map(doctor -> this.modelMapperService.forResponse().map(doctor, DoctorResponse.class));
-
-        return ResultHelper.cursor(doctorResponsePage);
+        return this.doctorService.cursor(page, pageSize);
     }
 
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public ResultData<DoctorResponse> update(@Valid @RequestBody DoctorUpdateRequest doctorUpdateRequest) {
-        Doctor updateDoctor = this.modelMapperService.forRequest().map(doctorUpdateRequest, Doctor.class);
-        this.doctorService.update(updateDoctor);
-        return ResultHelper.success(this.modelMapperService.forResponse().map(updateDoctor, DoctorResponse.class));
+        DoctorResponse doctorResponse = this.doctorService.update(doctorUpdateRequest);
+        return ResultHelper.success(doctorResponse);
     }
 
 

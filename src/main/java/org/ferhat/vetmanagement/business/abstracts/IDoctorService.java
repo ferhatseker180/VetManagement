@@ -1,22 +1,24 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.core.result.ResultData;
+import org.ferhat.vetmanagement.dto.request.doctor.DoctorSaveRequest;
+import org.ferhat.vetmanagement.dto.request.doctor.DoctorUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.doctor.DoctorResponse;
-import org.ferhat.vetmanagement.entities.Doctor;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface IDoctorService {
 
-    Doctor save(Doctor doctor);
+    DoctorResponse save(DoctorSaveRequest doctorSaveRequest);
 
-    Doctor update(Doctor doctor);
+    DoctorResponse update(DoctorUpdateRequest doctorUpdateRequest);
 
     boolean delete(Long id);
 
-    Doctor get(Long id);
+    DoctorResponse get(Long id);
 
     List<DoctorResponse> getAll();
 
-    Page<Doctor> cursor(int page, int pageSize);
+    ResultData<CursorResponse<DoctorResponse>> cursor(int page, int pageSize);
 }
