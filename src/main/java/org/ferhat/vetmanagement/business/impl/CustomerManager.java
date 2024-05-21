@@ -3,7 +3,12 @@ package org.ferhat.vetmanagement.business.impl;
 import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
+import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.dto.request.customer.CustomerSaveRequest;
+import org.ferhat.vetmanagement.dto.request.customer.CustomerUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
@@ -33,32 +38,42 @@ public class CustomerManager implements ICustomerService {
     }
 
     @Override
-    public Customer save(Customer customer) {
-        return this.customerRepo.save(customer);
+    public CustomerResponse save(CustomerSaveRequest customerSaveRequest) {
+        Customer saveCustomer = modelMapperService.forRequest().map(customerSaveRequest, Customer.class);
+        Customer savedCustomer = customerRepo.save(saveCustomer);
+        return modelMapperService.forResponse().map(savedCustomer, CustomerResponse.class);
     }
 
     @Override
-    public Customer update(Customer customer) {
-        this.get(customer.getId());
-        return this.customerRepo.save(customer);
+    public CustomerResponse update(CustomerUpdateRequest customerUpdateRequest) {
+        Customer updateCustomer = modelMapperService.forRequest().map(customerUpdateRequest, Customer.class);
+        get(updateCustomer.getId());
+        Customer updatedCustomer = customerRepo.save(updateCustomer);
+        return modelMapperService.forResponse().map(updatedCustomer, CustomerResponse.class);
     }
 
     @Override
     public boolean delete(Long id) {
-        Customer customer = this.get(id);
-        this.customerRepo.delete(customer);
+        Customer customer = customerRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        customerRepo.delete(customer);
         return true;
     }
 
     @Override
-    public Customer get(Long id) {
-        return this.customerRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+    public CustomerResponse get(Long id) {
+        Customer customer = customerRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        return modelMapperService.forResponse().map(customer, CustomerResponse.class);
     }
 
     @Override
-    public Page<Customer> cursor(int page, int pageSize) {
+    public ResultData<CursorResponse<CustomerResponse>> cursor(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        return this.customerRepo.findAll(pageable);
+        Page<Customer> customerPage = this.customerRepo.findAll(pageable);
+        Page<CustomerResponse> customerResponsePage = customerPage
+                .map(customer -> this.modelMapperService.forResponse().map(customer, CustomerResponse.class));
+        return ResultHelper.cursor(customerResponsePage);
     }
 
     @Override
@@ -81,7 +96,8 @@ public class CustomerManager implements ICustomerService {
 
     @Override
     public List<AnimalResponse> getCustomerAnimals(Long customerId) {
-        Customer customer = get(customerId);
+        Customer customer = this.customerRepo.findById(customerId)
+                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
         List<Animal> animals = customer.getAnimalList();
         if (animals.isEmpty()) {
             throw new NotFoundException("Not found animal");

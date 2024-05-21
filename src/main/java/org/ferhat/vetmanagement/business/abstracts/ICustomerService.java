@@ -1,24 +1,27 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.core.result.ResultData;
+import org.ferhat.vetmanagement.dto.request.customer.CustomerSaveRequest;
+import org.ferhat.vetmanagement.dto.request.customer.CustomerUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.dto.response.customer.CustomerResponse;
 import org.ferhat.vetmanagement.entities.Animal;
-import org.ferhat.vetmanagement.entities.Customer;
-import org.springframework.data.domain.Page;
+
 
 import java.util.List;
 
 public interface ICustomerService {
 
-    Customer save(Customer customer);
+    CustomerResponse save(CustomerSaveRequest customerSaveRequest);
 
-    Customer update(Customer customer);
+    CustomerResponse update(CustomerUpdateRequest customerUpdateRequest);
 
     boolean delete(Long id);
 
-    Customer get(Long id);
+    CustomerResponse get(Long id);
 
-    Page<Customer> cursor(int page, int pageSize);
+    ResultData<CursorResponse<CustomerResponse>> cursor(int page, int pageSize);
 
     List<CustomerResponse> findCustomersByNameIgnoreCase(String name);
 
