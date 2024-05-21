@@ -2,7 +2,6 @@ package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
-import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;

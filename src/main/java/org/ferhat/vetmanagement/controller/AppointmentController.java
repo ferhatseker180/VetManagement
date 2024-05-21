@@ -2,7 +2,6 @@ package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IAppointment;
-import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
@@ -10,8 +9,6 @@ import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
-import org.ferhat.vetmanagement.entities.Appointment;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,18 +20,16 @@ import java.util.List;
 public class AppointmentController {
 
     private final IAppointment appointmentService;
-    private final IModelMapperService modelMapperService;
 
-    public AppointmentController(IAppointment appointmentService, IModelMapperService modelMapperService) {
+    public AppointmentController(IAppointment appointmentService) {
         this.appointmentService = appointmentService;
-        this.modelMapperService = modelMapperService;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AppointmentResponse> save(@Valid @RequestBody AppointmentSaveRequest appointmentSaveRequest) {
-        AppointmentResponse appointmentResponse = appointmentService.saveAppointment(appointmentSaveRequest);
-        return ResultHelper.created(appointmentResponse);
+        return appointmentService.save(appointmentSaveRequest);
+
     }
 
     @GetMapping("/{id}")
@@ -70,20 +65,13 @@ public class AppointmentController {
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
-        Page<Appointment> appointmentPage = this.appointmentService.cursor(page, pageSize);
-        Page<AppointmentResponse> appointmentResponsePage = appointmentPage
-                .map(appointment -> this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class));
-
-        return ResultHelper.cursor(appointmentResponsePage);
+        return this.appointmentService.cursor(page, pageSize);
     }
 
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
-    public ResultData<AppointmentResponse> update(@Valid @RequestBody AppointmentUpdateRequest appointmentUpdateRequest) {
-
-        Appointment updateAppointment = this.modelMapperService.forRequest().map(appointmentUpdateRequest, Appointment.class);
-        this.appointmentService.update(updateAppointment);
-        return ResultHelper.success(this.modelMapperService.forResponse().map(updateAppointment, AppointmentResponse.class));
+    public AppointmentResponse update(@Valid @RequestBody AppointmentUpdateRequest appointmentUpdateRequest) {
+        return this.appointmentService.updateAndReturnResponse(appointmentUpdateRequest);
     }
 
     @DeleteMapping("/{id}")

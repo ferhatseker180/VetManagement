@@ -4,8 +4,12 @@ import org.ferhat.vetmanagement.business.abstracts.IAppointment;
 import org.ferhat.vetmanagement.business.abstracts.IAvailableDateService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
+import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
+import org.ferhat.vetmanagement.dto.request.appointment.AppointmentUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.appointment.AppointmentResponse;
 import org.ferhat.vetmanagement.entities.Appointment;
 import org.ferhat.vetmanagement.entities.AvailableDate;
@@ -13,9 +17,7 @@ import org.ferhat.vetmanagement.repository.AppointmentRepo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,41 +36,46 @@ public class AppointmentManager implements IAppointment {
     }
 
     @Override
-    public Appointment save(Appointment appointment) {
+    public ResultData<AppointmentResponse> save(AppointmentSaveRequest appointmentSaveRequest) {
+
+        Appointment saveAppointment = modelMapperService.forRequest().map(appointmentSaveRequest, Appointment.class);
 
         // Check if the doctor is available on the specified date
-        List<AvailableDate> availableDates = availableDateService.findByDoctorIdAndAvailableDate(appointment.getDoctor().getId(), appointment.getAppointmentDate().toLocalDate());
+        List<AvailableDate> availableDates = availableDateService.findByDoctorIdAndAvailableDate(saveAppointment.getDoctor().getId(), saveAppointment.getAppointmentDate().toLocalDate());
         if (availableDates.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Doctor is not available on the specified date");
+            throw new NotFoundException("Doctor is not available on the specified date");
         }
 
         // Check if the doctor has an appointment at the specified time
-        if (!isDoctorAvailableAtHour(appointment.getAppointmentDate(), appointment.getDoctor().getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Doctor has another appointment at the specified hour");
+        if (!isDoctorAvailableAtHour(saveAppointment.getAppointmentDate(), saveAppointment.getDoctor().getId())) {
+            throw new NotFoundException("Doctor has another appointment at the specified hour");
         }
 
         // Check if the new appointment is 1 hour earlier or 1 hour later
-        LocalDateTime startRange = appointment.getAppointmentDate().minusHours(1);
-        LocalDateTime endRange = appointment.getAppointmentDate().plusHours(1);
-        List<Appointment> appointmentsInTimeRange = appointmentRepo.findByDoctorIdAndAppointmentDateBetween(appointment.getDoctor().getId(), startRange, endRange);
+        LocalDateTime startRange = saveAppointment.getAppointmentDate().minusHours(1);
+        LocalDateTime endRange = saveAppointment.getAppointmentDate().plusHours(1);
+        List<Appointment> appointmentsInTimeRange = appointmentRepo.findByDoctorIdAndAppointmentDateBetween(saveAppointment.getDoctor().getId(), startRange, endRange);
         if (!appointmentsInTimeRange.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Another appointment is scheduled within 1 hour of this time");
+            throw new NotFoundException("Another appointment is scheduled within 1 hour of this time");
         }
 
-        return this.appointmentRepo.save(appointment);
+        Appointment savedAppointment = this.appointmentRepo.save(saveAppointment);
+        AppointmentResponse appointmentResponse = modelMapperService.forResponse().map(savedAppointment, AppointmentResponse.class);
+        return ResultHelper.created(appointmentResponse);
     }
 
-    @Override
-    public AppointmentResponse saveAppointment(AppointmentSaveRequest appointmentSaveRequest) {
-        Appointment saveAppointment = this.modelMapperService.forRequest().map(appointmentSaveRequest, Appointment.class);
-        Appointment savedAppointment = this.save(saveAppointment);
-        return modelMapperService.forResponse().map(savedAppointment, AppointmentResponse.class);
-    }
 
     @Override
     public Appointment update(Appointment appointment) {
         this.get(appointment.getId());
         return this.appointmentRepo.save(appointment);
+    }
+
+    @Override
+    public AppointmentResponse updateAndReturnResponse(AppointmentUpdateRequest appointmentUpdateRequest) {
+        Appointment updateAppointment = this.modelMapperService.forRequest().map(appointmentUpdateRequest, Appointment.class);
+        Appointment updatedAppointment = this.update(updateAppointment);
+        return this.modelMapperService.forResponse().map(updatedAppointment, AppointmentResponse.class);
     }
 
 
@@ -88,9 +95,12 @@ public class AppointmentManager implements IAppointment {
     }
 
     @Override
-    public Page<Appointment> cursor(int page, int pageSize) {
+    public ResultData<CursorResponse<AppointmentResponse>> cursor(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        return this.appointmentRepo.findAll(pageable);
+        Page<Appointment> appointmentPage = this.appointmentRepo.findAll(pageable);
+        Page<AppointmentResponse> appointmentResponsePage = appointmentPage
+                .map(appointment -> this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class));
+        return ResultHelper.cursor(appointmentResponsePage);
     }
 
     @Override
