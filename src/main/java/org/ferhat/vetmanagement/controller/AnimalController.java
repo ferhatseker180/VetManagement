@@ -10,8 +10,6 @@ import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
-import org.ferhat.vetmanagement.entities.Animal;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,18 +19,15 @@ import java.util.List;
 @RequestMapping("/v1/animals")
 public class AnimalController {
     private final IAnimalService animalService;
-    private final IModelMapperService modelMapperService;
 
-    public AnimalController(IAnimalService animalService, IModelMapperService modelMapperService) {
+    public AnimalController(IAnimalService animalService) {
         this.animalService = animalService;
-        this.modelMapperService = modelMapperService;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<AnimalResponse> save(@Valid @RequestBody AnimalSaveRequest animalSaveRequest) {
-        AnimalResponse animalResponse = animalService.save(animalSaveRequest);
-        return ResultHelper.created(animalResponse);
+        return animalService.save(animalSaveRequest);
     }
 
     @GetMapping("/{id}")
@@ -56,11 +51,8 @@ public class AnimalController {
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
-        Page<Animal> animalPage = this.animalService.cursor(page, pageSize);
-        Page<AnimalResponse> animalResponsePage = animalPage
-                .map(animal -> this.modelMapperService.forResponse().map(animal, AnimalResponse.class));
+        return this.animalService.cursor(page, pageSize);
 
-        return ResultHelper.cursor(animalResponsePage);
     }
 
     @PutMapping()

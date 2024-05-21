@@ -4,9 +4,12 @@ import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
+import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
@@ -37,7 +40,7 @@ public class AnimalManager implements IAnimalService {
 
     @Override
     @Transactional
-    public AnimalResponse save(AnimalSaveRequest animalSaveRequest) {
+    public ResultData<AnimalResponse> save(AnimalSaveRequest animalSaveRequest) {
         Animal saveAnimal = modelMapperService.forRequest().map(animalSaveRequest, Animal.class);
         Long customerId = saveAnimal.getCustomer().getId();
         Customer customer = customerService.get(customerId);
@@ -46,7 +49,8 @@ public class AnimalManager implements IAnimalService {
         }
         saveAnimal.setCustomer(customer);
         Animal savedAnimal = this.animalRepo.save(saveAnimal);
-        return modelMapperService.forResponse().map(savedAnimal, AnimalResponse.class);
+        AnimalResponse animalResponse = modelMapperService.forResponse().map(savedAnimal, AnimalResponse.class);
+        return ResultHelper.created(animalResponse);
     }
 
 
@@ -88,9 +92,12 @@ public class AnimalManager implements IAnimalService {
     }
 
     @Override
-    public Page<Animal> cursor(int page, int pageSize) {
+    public ResultData<CursorResponse<AnimalResponse>> cursor(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        return this.animalRepo.findAll(pageable);
+        Page<Animal> animalPage = this.animalRepo.findAll(pageable);
+        Page<AnimalResponse> animalResponsePage = animalPage
+                .map(animal -> this.modelMapperService.forResponse().map(animal, AnimalResponse.class));
+        return ResultHelper.cursor(animalResponsePage);
     }
 
     @Override

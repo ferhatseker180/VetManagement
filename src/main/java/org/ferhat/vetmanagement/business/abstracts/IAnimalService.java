@@ -1,17 +1,18 @@
 package org.ferhat.vetmanagement.business.abstracts;
 
+import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.animal.AnimalResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Customer;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface IAnimalService {
 
-    AnimalResponse save(AnimalSaveRequest animalSaveRequest);
+    ResultData<AnimalResponse> save(AnimalSaveRequest animalSaveRequest);
 
     Animal update(Animal animal);
 
@@ -25,7 +26,7 @@ public interface IAnimalService {
 
     List<Animal> getAll();
 
-    Page<Animal> cursor(int page, int pageSize);
+    ResultData<CursorResponse<AnimalResponse>> cursor(int page, int pageSize);
 
     Customer getCustomer(Long id);
 
