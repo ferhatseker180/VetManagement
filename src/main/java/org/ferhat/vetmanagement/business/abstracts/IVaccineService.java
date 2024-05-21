@@ -2,10 +2,11 @@ package org.ferhat.vetmanagement.business.abstracts;
 
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.dto.request.vaccine.VaccineSaveRequest;
+import org.ferhat.vetmanagement.dto.request.vaccine.VaccineUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.vaccine.VaccineResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Vaccine;
-import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,15 +15,15 @@ public interface IVaccineService {
 
     ResultData<VaccineResponse> save(VaccineSaveRequest vaccineSaveRequest);
 
-    Vaccine update(Vaccine vaccine);
+    ResultData<VaccineResponse> update(VaccineUpdateRequest vaccineUpdateRequest);
 
-    boolean delete(Long id);
+    ResultData<Boolean> delete(Long id);
 
     Vaccine get(Long id);
 
-    List<Vaccine> getAll();
+    ResultData<List<VaccineResponse>> getAll();
 
-    Page<Vaccine> cursor(int page, int pageSize);
+    ResultData<CursorResponse<VaccineResponse>> cursor(int page, int pageSize);
 
     List<Vaccine> getByAnimalId(Long animalId);
 
@@ -31,5 +32,11 @@ public interface IVaccineService {
     List<Vaccine> findByProtectionStartDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<VaccineResponse> mapToResponse(List<Vaccine> vaccines);
+
+    ResultData<VaccineResponse> getVaccineResponseById(Long id);
+
+    ResultData<List<VaccineResponse>> getVaccineResponsesByAnimalId(Long animalId);
+
+    ResultData<List<VaccineResponse>> getVaccineResponsesByDateRange(LocalDate startDate, LocalDate endDate);
 
 }

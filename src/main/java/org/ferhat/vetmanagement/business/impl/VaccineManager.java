@@ -8,6 +8,8 @@ import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.request.vaccine.VaccineSaveRequest;
+import org.ferhat.vetmanagement.dto.request.vaccine.VaccineUpdateRequest;
+import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.vaccine.VaccineResponse;
 import org.ferhat.vetmanagement.entities.Animal;
 import org.ferhat.vetmanagement.entities.Vaccine;
@@ -26,12 +28,10 @@ import java.util.stream.Collectors;
 @Service
 public class VaccineManager implements IVaccineService {
     private final VaccineRepo vaccineRepo;
-    private final IAnimalService animalService;
     private final IModelMapperService modelMapperService;
 
-    public VaccineManager(VaccineRepo vaccineRepo, IAnimalService animalService, IModelMapperService modelMapperService) {
+    public VaccineManager(VaccineRepo vaccineRepo, IModelMapperService modelMapperService) {
         this.vaccineRepo = vaccineRepo;
-        this.animalService = animalService;
         this.modelMapperService = modelMapperService;
     }
 
@@ -61,16 +61,22 @@ public class VaccineManager implements IVaccineService {
     }
 
     @Override
-    public Vaccine update(Vaccine vaccine) {
-        this.get(vaccine.getId());
-        return this.vaccineRepo.save(vaccine);
+    public ResultData<VaccineResponse> update(VaccineUpdateRequest vaccineUpdateRequest) {
+        Vaccine updateVaccine = modelMapperService.forRequest().map(vaccineUpdateRequest, Vaccine.class);
+        this.get(updateVaccine.getId());
+        Vaccine updatedVaccine = this.vaccineRepo.save(updateVaccine);
+        VaccineResponse vaccineResponse = modelMapperService.forResponse().map(updatedVaccine, VaccineResponse.class);
+        return ResultHelper.success(vaccineResponse);
     }
 
     @Override
-    public boolean delete(Long id) {
+    public ResultData<Boolean> delete(Long id) {
         Vaccine vaccine = this.get(id);
+        if (vaccine == null) {
+            throw new NotFoundException("Vaccine not found");
+        }
         this.vaccineRepo.delete(vaccine);
-        return true;
+        return ResultHelper.success(true);
     }
 
     @Override
@@ -79,14 +85,20 @@ public class VaccineManager implements IVaccineService {
     }
 
     @Override
-    public List<Vaccine> getAll() {
-        return this.vaccineRepo.findAll();
+    public ResultData<List<VaccineResponse>> getAll() {
+        List<Vaccine> vaccines = this.vaccineRepo.findAll();
+        List<VaccineResponse> vaccineResponses = mapToResponse(vaccines);
+        return ResultHelper.success(vaccineResponses);
     }
 
     @Override
-    public Page<Vaccine> cursor(int page, int pageSize) {
+    public ResultData<CursorResponse<VaccineResponse>> cursor(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
-        return this.vaccineRepo.findAll(pageable);
+        Page<Vaccine> vaccinePage = this.vaccineRepo.findAll(pageable);
+        Page<VaccineResponse> vaccineResponsePage = vaccinePage
+                .map(vaccine -> modelMapperService.forResponse().map(vaccine, VaccineResponse.class));
+
+        return ResultHelper.cursor(vaccineResponsePage);
     }
 
     @Override
@@ -114,6 +126,25 @@ public class VaccineManager implements IVaccineService {
         return vaccines.stream()
                 .map(vaccine -> modelMapperService.forResponse().map(vaccine, VaccineResponse.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ResultData<VaccineResponse> getVaccineResponseById(Long id) {
+        Vaccine vaccine = this.get(id);
+        VaccineResponse vaccineResponse = modelMapperService.forResponse().map(vaccine, VaccineResponse.class);
+        return ResultHelper.success(vaccineResponse);
+    }
+
+    @Override
+    public ResultData<List<VaccineResponse>> getVaccineResponsesByAnimalId(Long animalId) {
+        List<Vaccine> vaccines = this.getByAnimalId(animalId);
+        return ResultHelper.success(mapToResponse(vaccines));
+    }
+
+    @Override
+    public ResultData<List<VaccineResponse>> getVaccineResponsesByDateRange(LocalDate startDate, LocalDate endDate) {
+        List<Vaccine> vaccines = this.findByProtectionStartDateBetween(startDate, endDate);
+        return ResultHelper.success(mapToResponse(vaccines));
     }
 
 }
