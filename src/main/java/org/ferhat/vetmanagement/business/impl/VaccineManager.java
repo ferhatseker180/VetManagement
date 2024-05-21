@@ -1,6 +1,5 @@
 package org.ferhat.vetmanagement.business.impl;
 
-import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.business.abstracts.IVaccineService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
