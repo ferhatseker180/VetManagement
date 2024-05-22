@@ -1,6 +1,6 @@
-package org.ferhat.vetmanagement.core.utils;
+package org.ferhat.vetmanagement.core.utils.global;
 
-public class Msg {
+public class Message {
 
     public static final String CREATED = "Data Added";
     public static final String VALIDATE_ERROR = "Validation Error";

@@ -2,7 +2,6 @@ package org.ferhat.vetmanagement.core.utils.customer;
 
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.springframework.data.domain.Page;
 
@@ -35,6 +34,6 @@ public class CustomerResultHelper {
         cursor.setPageNumber(pageData.getNumber());
         cursor.setPageSize(pageData.getSize());
         cursor.setTotalElements(pageData.getTotalElements());
-        return ResultHelper.success(cursor);
+        return CustomerResultHelper.success(cursor);
     }
 }

@@ -2,7 +2,6 @@ package org.ferhat.vetmanagement.core.utils.doctor;
 
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.springframework.data.domain.Page;
 
@@ -35,7 +34,7 @@ public class DoctorResultHelper {
         cursor.setPageNumber(pageData.getNumber());
         cursor.setPageSize(pageData.getSize());
         cursor.setTotalElements(pageData.getTotalElements());
-        return ResultHelper.success(cursor);
+        return DoctorResultHelper.success(cursor);
     }
 
 }

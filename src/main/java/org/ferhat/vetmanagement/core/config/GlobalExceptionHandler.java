@@ -3,7 +3,7 @@ package org.ferhat.vetmanagement.core.config;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.global.ResultHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
