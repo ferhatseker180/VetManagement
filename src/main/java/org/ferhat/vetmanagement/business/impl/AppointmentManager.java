@@ -69,17 +69,17 @@ public class AppointmentManager implements IAppointment {
     // Update Appointment
     @Override
     public AppointmentResponse update(AppointmentUpdateRequest appointmentUpdateRequest) {
-        // AppointmentUpdateRequest nesnesini Appointment nesnesine dönüştür
+        // Converting Appointment Update Request object to Appointment object
         Appointment updateAppointment = this.modelMapperService.forRequest().map(appointmentUpdateRequest, Appointment.class);
 
-        // Var olan randevunun olup olmadığını kontrol et
+        // Check if there is an existing appointment
         this.appointmentRepo.findById(updateAppointment.getId())
                     .orElseThrow(() -> new NotFoundException(AppointmentMessage.NOT_FOUND));
 
-        // Güncellenmiş randevuyu veri tabanına kaydet
+        // Save updated appointment to database
         Appointment updatedAppointment = this.appointmentRepo.save(updateAppointment);
 
-        // Güncellenmiş randevuyu AppointmentResponse nesnesine dönüştür ve döndür
+        // Convert and download the updated appointment to an Appointment Response object
         return this.modelMapperService.forResponse().map(updatedAppointment, AppointmentResponse.class);
     }
 
@@ -108,17 +108,20 @@ public class AppointmentManager implements IAppointment {
         return AppointmentResultHelper.cursor(appointmentResponsePage);
     }
 
+    //Bringing an appointment date with the doctor's ID number
     @Override
     public List<Appointment> findByDoctorIdAndAppointmentDate(Long doctorId, LocalDateTime appointmentDate) {
         return this.appointmentRepo.findByDoctorIdAndAppointmentDate(doctorId, appointmentDate);
     }
 
+    // Is the doctor available at the selected time
     @Override
     public boolean isDoctorAvailableAtHour(LocalDateTime hour, Long doctorId) {
         List<Appointment> appointmentList = appointmentRepo.findByDoctorIdAndAppointmentDate(doctorId, hour);
         return appointmentList.isEmpty();
     }
 
+    // List appointments between two selected appointment dates and according to the specified animal ID number
     @Override
     public List<AppointmentResponse> findByAppointmentDateBetweenAndAnimalId(LocalDateTime startDate, LocalDateTime endDate, Long animalId) {
         List<Appointment> appointments = appointmentRepo.findByAppointmentDateBetweenAndAnimalId(startDate, endDate, animalId);
@@ -127,6 +130,7 @@ public class AppointmentManager implements IAppointment {
                 .collect(Collectors.toList());
     }
 
+    // List appointments between two selected appointment dates and according to the specified doctor ID number
     @Override
     public List<AppointmentResponse> findByAppointmentDateBetweenAndDoctorId(LocalDateTime startDate, LocalDateTime endDate, Long doctorId) {
         List<Appointment> appointments = appointmentRepo.findByAppointmentDateBetweenAndDoctorId(startDate, endDate, doctorId);
