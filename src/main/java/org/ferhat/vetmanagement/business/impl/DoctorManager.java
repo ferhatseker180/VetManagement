@@ -4,7 +4,6 @@ import org.ferhat.vetmanagement.business.abstracts.IDoctorService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.core.utils.doctor.DoctorMessage;
 import org.ferhat.vetmanagement.core.utils.doctor.DoctorResultHelper;
 import org.ferhat.vetmanagement.dto.request.doctor.DoctorSaveRequest;

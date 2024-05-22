@@ -3,7 +3,6 @@ package org.ferhat.vetmanagement.core.utils.doctor;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
-import org.ferhat.vetmanagement.core.utils.customer.CustomerMessage;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.springframework.data.domain.Page;
 

@@ -6,7 +6,6 @@ import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.animal.AnimalMessage;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.core.utils.animal.AnimalResultHelper;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;

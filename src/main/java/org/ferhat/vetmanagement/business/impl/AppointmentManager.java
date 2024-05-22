@@ -5,8 +5,6 @@ import org.ferhat.vetmanagement.business.abstracts.IAvailableDateService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.Msg;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
 import org.ferhat.vetmanagement.core.utils.appointment.AppointmentMessage;
 import org.ferhat.vetmanagement.core.utils.appointment.AppointmentResultHelper;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
