@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IAnimalService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.animal.AnimalResultHelper;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalSaveRequest;
 import org.ferhat.vetmanagement.dto.request.animal.AnimalUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -33,7 +33,7 @@ public class AnimalController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<AnimalResponse> get(@PathVariable("id") Long id) {
         AnimalResponse animalResponse = animalService.getAnimalResponseById(id);
-        return ResultHelper.success(animalResponse);
+        return AnimalResultHelper.success(animalResponse);
     }
 
     // Customer isme göre arama
@@ -41,7 +41,7 @@ public class AnimalController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<AnimalResponse>> findAnimalsByNameIgnoreCase(@RequestParam("name") String name) {
         List<AnimalResponse> animalResponses = animalService.findAnimalsByNameIgnoreCase(name);
-        return ResultHelper.success(animalResponses);
+        return AnimalResultHelper.success(animalResponses);
     }
 
     @GetMapping()
@@ -65,7 +65,7 @@ public class AnimalController {
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id) {
         this.animalService.delete(id);
-        return ResultHelper.ok();
+        return AnimalResultHelper.ok();
     }
 
 }

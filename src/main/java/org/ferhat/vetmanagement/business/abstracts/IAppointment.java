@@ -18,7 +18,7 @@ public interface IAppointment {
 
     AppointmentResponse updateAndReturnResponse(AppointmentUpdateRequest appointmentUpdateRequest);
 
-    boolean delete(Long id);
+    String delete(Long id);
 
     AppointmentResponse get(Long id);
 

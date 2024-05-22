@@ -14,7 +14,7 @@ public interface IAvailableDateService {
 
     AvailableDateResponse update(AvailableUpdateRequest availableUpdateRequest);
 
-    boolean delete(Long id);
+    String delete(Long id);
 
     AvailableDateResponse get(Long id);
 

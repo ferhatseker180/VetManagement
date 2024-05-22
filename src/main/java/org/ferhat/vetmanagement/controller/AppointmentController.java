@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IAppointment;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.appointment.AppointmentResultHelper;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -36,7 +36,7 @@ public class AppointmentController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<AppointmentResponse> get(@PathVariable("id") Long id) {
         AppointmentResponse appointmentResponse = this.appointmentService.get(id);
-        return ResultHelper.success(appointmentResponse);
+        return AppointmentResultHelper.success(appointmentResponse);
     }
 
     @GetMapping("/animalId")
@@ -78,7 +78,7 @@ public class AppointmentController {
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id) {
         this.appointmentService.delete(id);
-        return ResultHelper.ok();
+        return AppointmentResultHelper.ok();
     }
 
 }

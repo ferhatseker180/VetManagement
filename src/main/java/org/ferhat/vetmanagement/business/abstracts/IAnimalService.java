@@ -18,7 +18,7 @@ public interface IAnimalService {
 
     AnimalResponse updateAndReturnResponse(AnimalUpdateRequest animalUpdateRequest);
 
-    boolean delete(Long id);
+    String delete(Long id);
 
     Animal get(Long id);
 

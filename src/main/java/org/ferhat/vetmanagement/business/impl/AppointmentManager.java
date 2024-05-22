@@ -7,6 +7,8 @@ import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.appointment.AppointmentMessage;
+import org.ferhat.vetmanagement.core.utils.appointment.AppointmentResultHelper;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentSaveRequest;
 import org.ferhat.vetmanagement.dto.request.appointment.AppointmentUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -43,12 +45,12 @@ public class AppointmentManager implements IAppointment {
         // Check if the doctor is available on the specified date
         List<AvailableDate> availableDates = availableDateService.findByDoctorIdAndAvailableDate(saveAppointment.getDoctor().getId(), saveAppointment.getAppointmentDate().toLocalDate());
         if (availableDates.isEmpty()) {
-            throw new NotFoundException("Doctor is not available on the specified date");
+            throw new NotFoundException(AppointmentMessage.NOT_FOUND);
         }
 
         // Check if the doctor has an appointment at the specified time
         if (!isDoctorAvailableAtHour(saveAppointment.getAppointmentDate(), saveAppointment.getDoctor().getId())) {
-            throw new NotFoundException("Doctor has another appointment at the specified hour");
+            throw new NotFoundException(AppointmentMessage.FULL_APPOINTMENT);
         }
 
         // Check if the new appointment is 1 hour earlier or 1 hour later
@@ -56,12 +58,12 @@ public class AppointmentManager implements IAppointment {
         LocalDateTime endRange = saveAppointment.getAppointmentDate().plusHours(1);
         List<Appointment> appointmentsInTimeRange = appointmentRepo.findByDoctorIdAndAppointmentDateBetween(saveAppointment.getDoctor().getId(), startRange, endRange);
         if (!appointmentsInTimeRange.isEmpty()) {
-            throw new NotFoundException("Another appointment is scheduled within 1 hour of this time");
+            throw new NotFoundException(AppointmentMessage.BUSY_APPOINTMENT);
         }
 
         Appointment savedAppointment = this.appointmentRepo.save(saveAppointment);
         AppointmentResponse appointmentResponse = modelMapperService.forResponse().map(savedAppointment, AppointmentResponse.class);
-        return ResultHelper.created(appointmentResponse);
+        return AppointmentResultHelper.created(appointmentResponse);
     }
 
 
@@ -80,17 +82,17 @@ public class AppointmentManager implements IAppointment {
 
 
     @Override
-    public boolean delete(Long id) {
+    public String delete(Long id) {
         Appointment appointment = this.appointmentRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(AppointmentMessage.NOT_FOUND));
         this.appointmentRepo.delete(appointment);
-        return true;
+        return AppointmentMessage.DELETED;
     }
 
     @Override
     public AppointmentResponse get(Long id) {
         Appointment appointment = this.appointmentRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(AppointmentMessage.NOT_FOUND));
         return this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class);
     }
 
@@ -100,7 +102,7 @@ public class AppointmentManager implements IAppointment {
         Page<Appointment> appointmentPage = this.appointmentRepo.findAll(pageable);
         Page<AppointmentResponse> appointmentResponsePage = appointmentPage
                 .map(appointment -> this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class));
-        return ResultHelper.cursor(appointmentResponsePage);
+        return AppointmentResultHelper.cursor(appointmentResponsePage);
     }
 
     @Override

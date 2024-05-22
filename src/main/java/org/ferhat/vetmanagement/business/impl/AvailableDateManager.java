@@ -3,7 +3,7 @@ package org.ferhat.vetmanagement.business.impl;
 import org.ferhat.vetmanagement.business.abstracts.IAvailableDateService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
-import org.ferhat.vetmanagement.core.utils.Msg;
+import org.ferhat.vetmanagement.core.utils.availableDate.AvailableDateMessage;
 import org.ferhat.vetmanagement.dto.request.availableDate.AvailableSaveRequest;
 import org.ferhat.vetmanagement.dto.request.availableDate.AvailableUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.availableDate.AvailableDateResponse;
@@ -34,13 +34,13 @@ public class AvailableDateManager implements IAvailableDateService {
         LocalDate date = availableSaveRequest.getAvailableDate();
 
         if (doctor == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, AvailableDateMessage.NOT_FOUND);
         }
 
         List<AvailableDate> existingAvailableDates = findByDoctorIdAndAvailableDate(doctor.getId(), date);
 
         if (!existingAvailableDates.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "An available date for the doctor on this date already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, AvailableDateMessage.EXISTING_APPOINTMENT);
         }
         AvailableDate availableDate = new AvailableDate();
         availableDate.setDoctor(doctor);
@@ -59,17 +59,17 @@ public class AvailableDateManager implements IAvailableDateService {
     }
 
     @Override
-    public boolean delete(Long id) {
+    public String delete(Long id) {
         AvailableDate availableDate = this.availableDateRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(AvailableDateMessage.NOT_FOUND));
         this.availableDateRepo.delete(availableDate);
-        return true;
+        return AvailableDateMessage.DELETED;
     }
 
     @Override
     public AvailableDateResponse get(Long id) {
         AvailableDate availableDate = this.availableDateRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(AvailableDateMessage.NOT_FOUND));
         return modelMapperService.forResponse().map(availableDate, AvailableDateResponse.class);
     }
 
