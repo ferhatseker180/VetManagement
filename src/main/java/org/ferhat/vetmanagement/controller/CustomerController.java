@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.customer.CustomerResultHelper;
 import org.ferhat.vetmanagement.dto.request.customer.CustomerSaveRequest;
 import org.ferhat.vetmanagement.dto.request.customer.CustomerUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -28,14 +28,14 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<CustomerResponse> save(@Valid @RequestBody CustomerSaveRequest customerSaveRequest) {
         CustomerResponse response = customerService.save(customerSaveRequest);
-        return ResultHelper.created(response);
+        return CustomerResultHelper.created(response);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<CustomerResponse> get(@PathVariable("id") Long id) {
         CustomerResponse customerResponse = customerService.get(id);
-        return ResultHelper.success(customerResponse);
+        return CustomerResultHelper.success(customerResponse);
     }
 
     // Customer isme göre arama
@@ -43,7 +43,7 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<CustomerResponse>> findCustomersByName(@RequestParam("name") String name) {
         List<CustomerResponse> customerResponses = customerService.findCustomersByNameIgnoreCase(name);
-        return ResultHelper.success(customerResponses);
+        return CustomerResultHelper.success(customerResponses);
     }
 
     // Show all animals belonging to customer
@@ -51,7 +51,7 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<AnimalResponse>> getCustomerAnimals(@PathVariable("customerId") Long customerId) {
         List<AnimalResponse> animalResponses = customerService.getCustomerAnimals(customerId);
-        return ResultHelper.success(animalResponses);
+        return CustomerResultHelper.success(animalResponses);
     }
 
     @GetMapping()
@@ -67,14 +67,14 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<CustomerResponse> update(@Valid @RequestBody CustomerUpdateRequest customerUpdateRequest) {
         CustomerResponse response = customerService.update(customerUpdateRequest);
-        return ResultHelper.success(response);
+        return CustomerResultHelper.success(response);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id) {
         this.customerService.delete(id);
-        return ResultHelper.ok();
+        return CustomerResultHelper.ok();
     }
 
 }

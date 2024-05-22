@@ -17,7 +17,7 @@ public interface IVaccineService {
 
     ResultData<VaccineResponse> update(VaccineUpdateRequest vaccineUpdateRequest);
 
-    ResultData<Boolean> delete(Long id);
+    ResultData<String> delete(Long id);
 
     Vaccine get(Long id);
 

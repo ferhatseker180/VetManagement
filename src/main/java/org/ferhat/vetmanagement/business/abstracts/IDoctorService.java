@@ -14,7 +14,7 @@ public interface IDoctorService {
 
     DoctorResponse update(DoctorUpdateRequest doctorUpdateRequest);
 
-    boolean delete(Long id);
+    String delete(Long id);
 
     DoctorResponse get(Long id);
 

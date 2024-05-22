@@ -5,7 +5,8 @@ import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.Msg;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.doctor.DoctorMessage;
+import org.ferhat.vetmanagement.core.utils.doctor.DoctorResultHelper;
 import org.ferhat.vetmanagement.dto.request.doctor.DoctorSaveRequest;
 import org.ferhat.vetmanagement.dto.request.doctor.DoctorUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -46,16 +47,16 @@ public class DoctorManager implements IDoctorService {
     }
 
     @Override
-    public boolean delete(Long id) {
-        Doctor doctor = this.doctorRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+    public String delete(Long id) {
+        Doctor doctor = this.doctorRepo.findById(id).orElseThrow(() -> new NotFoundException(DoctorMessage.NOT_FOUND));
         this.doctorRepo.delete(doctor);
-        return true;
+        return DoctorMessage.DELETED;
     }
 
     @Override
     public DoctorResponse get(Long id) {
         Doctor doctor = this.doctorRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(DoctorMessage.NOT_FOUND));
         return modelMapperService.forResponse().map(doctor, DoctorResponse.class);    }
 
     @Override
@@ -72,6 +73,6 @@ public class DoctorManager implements IDoctorService {
         Page<Doctor> doctorPage = this.doctorRepo.findAll(pageable);
         Page<DoctorResponse> doctorResponsePage = doctorPage
                 .map(doctor -> this.modelMapperService.forResponse().map(doctor, DoctorResponse.class));
-        return ResultHelper.cursor(doctorResponsePage);
+        return DoctorResultHelper.cursor(doctorResponsePage);
     }
 }

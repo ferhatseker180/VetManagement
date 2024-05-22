@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IDoctorService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.doctor.DoctorResultHelper;
 import org.ferhat.vetmanagement.dto.request.doctor.DoctorSaveRequest;
 import org.ferhat.vetmanagement.dto.request.doctor.DoctorUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -27,21 +27,21 @@ public class DoctorController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<DoctorResponse> save(@Valid @RequestBody DoctorSaveRequest doctorSaveRequest) {
         DoctorResponse doctorResponse = this.doctorService.save(doctorSaveRequest);
-        return ResultHelper.created(doctorResponse);
+        return DoctorResultHelper.created(doctorResponse);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<DoctorResponse> get(@PathVariable("id") Long id) {
         DoctorResponse doctorResponse = this.doctorService.get(id);
-        return ResultHelper.success(doctorResponse);
+        return DoctorResultHelper.success(doctorResponse);
     }
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<List<DoctorResponse>> getAllDoctors() {
         List<DoctorResponse> doctorResponses = doctorService.getAll();
-        return ResultHelper.success(doctorResponses);
+        return DoctorResultHelper.success(doctorResponses);
     }
 
     @GetMapping()
@@ -57,7 +57,7 @@ public class DoctorController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<DoctorResponse> update(@Valid @RequestBody DoctorUpdateRequest doctorUpdateRequest) {
         DoctorResponse doctorResponse = this.doctorService.update(doctorUpdateRequest);
-        return ResultHelper.success(doctorResponse);
+        return DoctorResultHelper.success(doctorResponse);
     }
 
 
@@ -65,7 +65,7 @@ public class DoctorController {
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id) {
         this.doctorService.delete(id);
-        return ResultHelper.ok();
+        return DoctorResultHelper.ok();
     }
 
 }

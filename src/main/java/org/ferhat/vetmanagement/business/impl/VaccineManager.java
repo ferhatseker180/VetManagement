@@ -4,8 +4,9 @@ import org.ferhat.vetmanagement.business.abstracts.IVaccineService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.Msg;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.animal.AnimalMessage;
+import org.ferhat.vetmanagement.core.utils.vaccine.VaccineMessage;
+import org.ferhat.vetmanagement.core.utils.vaccine.VaccineResultHelper;
 import org.ferhat.vetmanagement.dto.request.vaccine.VaccineSaveRequest;
 import org.ferhat.vetmanagement.dto.request.vaccine.VaccineUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -42,12 +43,12 @@ public class VaccineManager implements IVaccineService {
         // Check vet and animal
         Animal animal = vaccineToSave.getAnimal();
         if (animal == null) {
-            throw new NotFoundException("Hayvan bulunamadı");
+            throw new NotFoundException(AnimalMessage.NOT_FOUND);
         }
 
         // Check Available Same Name ve Same Finish Protection Time
         if (isExistingVaccine(animal, vaccineToSave.getName(), vaccineToSave.getCode(), vaccineToSave.getProtectionFinishDate())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Aşı zaten mevcut");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, VaccineMessage.EXISTING_VACCINE);
         }
 
         // Save Vaccine
@@ -56,7 +57,7 @@ public class VaccineManager implements IVaccineService {
         // Convert to Vaccine
         VaccineResponse vaccineResponse = modelMapperService.forResponse().map(savedVaccine, VaccineResponse.class);
 
-        return ResultHelper.created(vaccineResponse);
+        return VaccineResultHelper.created(vaccineResponse);
     }
 
     @Override
@@ -65,29 +66,29 @@ public class VaccineManager implements IVaccineService {
         this.get(updateVaccine.getId());
         Vaccine updatedVaccine = this.vaccineRepo.save(updateVaccine);
         VaccineResponse vaccineResponse = modelMapperService.forResponse().map(updatedVaccine, VaccineResponse.class);
-        return ResultHelper.success(vaccineResponse);
+        return VaccineResultHelper.success(vaccineResponse);
     }
 
     @Override
-    public ResultData<Boolean> delete(Long id) {
+    public ResultData<String> delete(Long id) {
         Vaccine vaccine = this.get(id);
         if (vaccine == null) {
-            throw new NotFoundException("Vaccine not found");
+            throw new NotFoundException(VaccineMessage.NOT_FOUND);
         }
         this.vaccineRepo.delete(vaccine);
-        return ResultHelper.success(true);
+        return VaccineResultHelper.success(VaccineMessage.DELETED);
     }
 
     @Override
     public Vaccine get(Long id) {
-        return this.vaccineRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+        return this.vaccineRepo.findById(id).orElseThrow(() -> new NotFoundException(VaccineMessage.NOT_FOUND));
     }
 
     @Override
     public ResultData<List<VaccineResponse>> getAll() {
         List<Vaccine> vaccines = this.vaccineRepo.findAll();
         List<VaccineResponse> vaccineResponses = mapToResponse(vaccines);
-        return ResultHelper.success(vaccineResponses);
+        return VaccineResultHelper.success(vaccineResponses);
     }
 
     @Override
@@ -97,7 +98,7 @@ public class VaccineManager implements IVaccineService {
         Page<VaccineResponse> vaccineResponsePage = vaccinePage
                 .map(vaccine -> modelMapperService.forResponse().map(vaccine, VaccineResponse.class));
 
-        return ResultHelper.cursor(vaccineResponsePage);
+        return VaccineResultHelper.cursor(vaccineResponsePage);
     }
 
     @Override
@@ -131,19 +132,19 @@ public class VaccineManager implements IVaccineService {
     public ResultData<VaccineResponse> getVaccineResponseById(Long id) {
         Vaccine vaccine = this.get(id);
         VaccineResponse vaccineResponse = modelMapperService.forResponse().map(vaccine, VaccineResponse.class);
-        return ResultHelper.success(vaccineResponse);
+        return VaccineResultHelper.success(vaccineResponse);
     }
 
     @Override
     public ResultData<List<VaccineResponse>> getVaccineResponsesByAnimalId(Long animalId) {
         List<Vaccine> vaccines = this.getByAnimalId(animalId);
-        return ResultHelper.success(mapToResponse(vaccines));
+        return VaccineResultHelper.success(mapToResponse(vaccines));
     }
 
     @Override
     public ResultData<List<VaccineResponse>> getVaccineResponsesByDateRange(LocalDate startDate, LocalDate endDate) {
         List<Vaccine> vaccines = this.findByProtectionStartDateBetween(startDate, endDate);
-        return ResultHelper.success(mapToResponse(vaccines));
+        return VaccineResultHelper.success(mapToResponse(vaccines));
     }
 
 }

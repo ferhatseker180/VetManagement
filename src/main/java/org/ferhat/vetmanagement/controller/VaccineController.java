@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IVaccineService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.vaccine.VaccineResultHelper;
 import org.ferhat.vetmanagement.dto.request.vaccine.VaccineSaveRequest;
 import org.ferhat.vetmanagement.dto.request.vaccine.VaccineUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -78,7 +78,7 @@ public class VaccineController {
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id) {
         vaccineService.delete(id);
-        return ResultHelper.ok();
+        return VaccineResultHelper.ok();
     }
 
 }

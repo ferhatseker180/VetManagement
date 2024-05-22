@@ -17,7 +17,7 @@ public interface ICustomerService {
 
     CustomerResponse update(CustomerUpdateRequest customerUpdateRequest);
 
-    boolean delete(Long id);
+    String delete(Long id);
 
     CustomerResponse get(Long id);
 

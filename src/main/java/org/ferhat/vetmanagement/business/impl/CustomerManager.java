@@ -4,8 +4,9 @@ import org.ferhat.vetmanagement.business.abstracts.ICustomerService;
 import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.exceptions.NotFoundException;
 import org.ferhat.vetmanagement.core.result.ResultData;
-import org.ferhat.vetmanagement.core.utils.Msg;
-import org.ferhat.vetmanagement.core.utils.ResultHelper;
+import org.ferhat.vetmanagement.core.utils.animal.AnimalMessage;
+import org.ferhat.vetmanagement.core.utils.customer.CustomerMessage;
+import org.ferhat.vetmanagement.core.utils.customer.CustomerResultHelper;
 import org.ferhat.vetmanagement.dto.request.customer.CustomerSaveRequest;
 import org.ferhat.vetmanagement.dto.request.customer.CustomerUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
@@ -53,17 +54,17 @@ public class CustomerManager implements ICustomerService {
     }
 
     @Override
-    public boolean delete(Long id) {
+    public String delete(Long id) {
         Customer customer = customerRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(CustomerMessage.NOT_FOUND));
         customerRepo.delete(customer);
-        return true;
+        return CustomerMessage.DELETED;
     }
 
     @Override
     public CustomerResponse get(Long id) {
         Customer customer = customerRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(CustomerMessage.NOT_FOUND));
         return modelMapperService.forResponse().map(customer, CustomerResponse.class);
     }
 
@@ -73,7 +74,7 @@ public class CustomerManager implements ICustomerService {
         Page<Customer> customerPage = this.customerRepo.findAll(pageable);
         Page<CustomerResponse> customerResponsePage = customerPage
                 .map(customer -> this.modelMapperService.forResponse().map(customer, CustomerResponse.class));
-        return ResultHelper.cursor(customerResponsePage);
+        return CustomerResultHelper.cursor(customerResponsePage);
     }
 
     @Override
@@ -81,7 +82,7 @@ public class CustomerManager implements ICustomerService {
         String lowerName = name.toLowerCase();
         List<Customer> customers = this.customerRepo.findCustomersByNameIgnoreCase(lowerName);
         if (customers.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, CustomerMessage.NOT_FOUND);
         }
 
         return customers.stream()
@@ -97,10 +98,10 @@ public class CustomerManager implements ICustomerService {
     @Override
     public List<AnimalResponse> getCustomerAnimals(Long customerId) {
         Customer customer = this.customerRepo.findById(customerId)
-                .orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(CustomerMessage.NOT_FOUND));
         List<Animal> animals = customer.getAnimalList();
         if (animals.isEmpty()) {
-            throw new NotFoundException("Not found animal");
+            throw new NotFoundException(AnimalMessage.NOT_FOUND);
         }
 
         return animals.stream()
