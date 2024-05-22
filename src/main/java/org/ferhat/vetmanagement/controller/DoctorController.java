@@ -2,7 +2,6 @@ package org.ferhat.vetmanagement.controller;
 
 import jakarta.validation.Valid;
 import org.ferhat.vetmanagement.business.abstracts.IDoctorService;
-import org.ferhat.vetmanagement.core.config.modelMapper.IModelMapperService;
 import org.ferhat.vetmanagement.core.result.Result;
 import org.ferhat.vetmanagement.core.result.ResultData;
 import org.ferhat.vetmanagement.core.utils.ResultHelper;
@@ -10,8 +9,6 @@ import org.ferhat.vetmanagement.dto.request.doctor.DoctorSaveRequest;
 import org.ferhat.vetmanagement.dto.request.doctor.DoctorUpdateRequest;
 import org.ferhat.vetmanagement.dto.response.CursorResponse;
 import org.ferhat.vetmanagement.dto.response.doctor.DoctorResponse;
-import org.ferhat.vetmanagement.entities.Doctor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
