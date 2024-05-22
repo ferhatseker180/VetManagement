@@ -14,9 +14,7 @@ public interface IAppointment {
 
     ResultData<AppointmentResponse> save(AppointmentSaveRequest appointmentSaveRequest);
 
-    Appointment update(Appointment appointment);
-
-    AppointmentResponse updateAndReturnResponse(AppointmentUpdateRequest appointmentUpdateRequest);
+    AppointmentResponse update(AppointmentUpdateRequest appointmentUpdateRequest);
 
     String delete(Long id);
 

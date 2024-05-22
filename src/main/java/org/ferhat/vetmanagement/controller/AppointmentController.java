@@ -71,7 +71,7 @@ public class AppointmentController {
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public AppointmentResponse update(@Valid @RequestBody AppointmentUpdateRequest appointmentUpdateRequest) {
-        return this.appointmentService.updateAndReturnResponse(appointmentUpdateRequest);
+        return this.appointmentService.update(appointmentUpdateRequest);
     }
 
     @DeleteMapping("/{id}")

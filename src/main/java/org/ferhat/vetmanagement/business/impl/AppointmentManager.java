@@ -35,6 +35,7 @@ public class AppointmentManager implements IAppointment {
         this.modelMapperService = modelMapperService;
     }
 
+    // Save Appointment
     @Override
     public ResultData<AppointmentResponse> save(AppointmentSaveRequest appointmentSaveRequest) {
 
@@ -65,16 +66,20 @@ public class AppointmentManager implements IAppointment {
     }
 
 
+    // Update Appointment
     @Override
-    public Appointment update(Appointment appointment) {
-        this.get(appointment.getId());
-        return this.appointmentRepo.save(appointment);
-    }
-
-    @Override
-    public AppointmentResponse updateAndReturnResponse(AppointmentUpdateRequest appointmentUpdateRequest) {
+    public AppointmentResponse update(AppointmentUpdateRequest appointmentUpdateRequest) {
+        // AppointmentUpdateRequest nesnesini Appointment nesnesine dönüştür
         Appointment updateAppointment = this.modelMapperService.forRequest().map(appointmentUpdateRequest, Appointment.class);
-        Appointment updatedAppointment = this.update(updateAppointment);
+
+        // Var olan randevunun olup olmadığını kontrol et
+        this.appointmentRepo.findById(updateAppointment.getId())
+                    .orElseThrow(() -> new NotFoundException(AppointmentMessage.NOT_FOUND));
+
+        // Güncellenmiş randevuyu veri tabanına kaydet
+        Appointment updatedAppointment = this.appointmentRepo.save(updateAppointment);
+
+        // Güncellenmiş randevuyu AppointmentResponse nesnesine dönüştür ve döndür
         return this.modelMapperService.forResponse().map(updatedAppointment, AppointmentResponse.class);
     }
 
