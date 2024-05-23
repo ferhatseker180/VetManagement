@@ -77,6 +77,7 @@ public class CustomerManager implements ICustomerService {
         return CustomerResultHelper.cursor(customerResponsePage);
     }
 
+    // Eliminates case sensitivity when searching by customer name
     @Override
     public List<CustomerResponse> findCustomersByNameIgnoreCase(String name) {
         String lowerName = name.toLowerCase();
@@ -95,6 +96,7 @@ public class CustomerManager implements ICustomerService {
         return this.animalRepo.findAllById(idList);
     }
 
+    // Listing customer's animals
     @Override
     public List<AnimalResponse> getCustomerAnimals(Long customerId) {
         Customer customer = this.customerRepo.findById(customerId)

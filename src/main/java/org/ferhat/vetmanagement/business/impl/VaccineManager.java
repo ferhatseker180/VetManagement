@@ -84,6 +84,7 @@ public class VaccineManager implements IVaccineService {
         return this.vaccineRepo.findById(id).orElseThrow(() -> new NotFoundException(VaccineMessage.NOT_FOUND));
     }
 
+    // Show All Vaccine
     @Override
     public ResultData<List<VaccineResponse>> getAll() {
         List<Vaccine> vaccines = this.vaccineRepo.findAll();
@@ -106,6 +107,7 @@ public class VaccineManager implements IVaccineService {
         return vaccineRepo.getByAnimalId(animalId);
     }
 
+    // Check if there is a vaccine with the same name and code as the vaccine you want to add, and whose protective date has not expired.
     @Override
     public boolean isExistingVaccine(Animal animal, String name, String code, LocalDate protectionFinishDate) {
         List<Vaccine> vaccines = this.getByAnimalId(animal.getId());
@@ -117,6 +119,7 @@ public class VaccineManager implements IVaccineService {
         return false;
     }
 
+    // Finding vaccines within 2 specified date ranges
     @Override
     public List<Vaccine> findByProtectionStartDateBetween(LocalDate startDate, LocalDate endDate) {
         return vaccineRepo.findByProtectionStartDateBetween(startDate, endDate);
@@ -135,12 +138,14 @@ public class VaccineManager implements IVaccineService {
         return VaccineResultHelper.success(vaccineResponse);
     }
 
+    // Get Vaccine With Animal ID
     @Override
     public ResultData<List<VaccineResponse>> getVaccineResponsesByAnimalId(Long animalId) {
         List<Vaccine> vaccines = this.getByAnimalId(animalId);
         return VaccineResultHelper.success(mapToResponse(vaccines));
     }
 
+    // Get Vaccine With date intervals
     @Override
     public ResultData<List<VaccineResponse>> getVaccineResponsesByDateRange(LocalDate startDate, LocalDate endDate) {
         List<Vaccine> vaccines = this.findByProtectionStartDateBetween(startDate, endDate);

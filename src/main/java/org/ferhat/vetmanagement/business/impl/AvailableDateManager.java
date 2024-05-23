@@ -33,12 +33,15 @@ public class AvailableDateManager implements IAvailableDateService {
         Doctor doctor = availableSaveRequest.getDoctor();
         LocalDate date = availableSaveRequest.getAvailableDate();
 
+        // Is there a doctor with the specified ID number?
         if (doctor == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, AvailableDateMessage.NOT_FOUND);
         }
 
+        // List of available dates for the doctor with the specified ID number
         List<AvailableDate> existingAvailableDates = findByDoctorIdAndAvailableDate(doctor.getId(), date);
 
+        // If the doctor is available on the specified date
         if (!existingAvailableDates.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, AvailableDateMessage.EXISTING_APPOINTMENT);
         }
@@ -74,6 +77,7 @@ public class AvailableDateManager implements IAvailableDateService {
     }
 
 
+    // Convert to Response
     @Override
     public AvailableDateResponse mapToResponse(AvailableDate availableDate) {
         Doctor doctor = availableDate.getDoctor();
@@ -84,6 +88,7 @@ public class AvailableDateManager implements IAvailableDateService {
         return response;
     }
 
+    // List available times by doctor's ID and selected date
     @Override
     public List<AvailableDate> findByDoctorIdAndAvailableDate(Long doctorId, LocalDate date) {
         return availableDateRepo.findByDoctorIdAndAvailableDate(doctorId, date);
