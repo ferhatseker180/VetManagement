@@ -56,7 +56,8 @@ public class DoctorManager implements IDoctorService {
     public DoctorResponse get(Long id) {
         Doctor doctor = this.doctorRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException(DoctorMessage.NOT_FOUND));
-        return modelMapperService.forResponse().map(doctor, DoctorResponse.class);    }
+        return modelMapperService.forResponse().map(doctor, DoctorResponse.class);
+    }
 
     // Show All Doctor
     @Override

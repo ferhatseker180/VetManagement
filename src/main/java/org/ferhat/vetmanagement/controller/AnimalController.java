@@ -51,7 +51,6 @@ public class AnimalController {
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
         return this.animalService.cursor(page, pageSize);
-
     }
 
     @PutMapping()
