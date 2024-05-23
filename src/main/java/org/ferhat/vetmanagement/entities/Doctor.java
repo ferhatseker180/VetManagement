@@ -34,8 +34,7 @@ public class Doctor {
     private String city;
 
     @OneToMany(mappedBy = "doctor", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-   @JsonIgnore
-   // @JsonManagedReference
+    @JsonIgnore
     private List<AvailableDate> availableDateList;
 
     @OneToMany(mappedBy = "doctor")
